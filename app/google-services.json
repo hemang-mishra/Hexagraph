@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "815796151352",
+    "project_id": "hexagraph-977bb",
+    "storage_bucket": "hexagraph-977bb.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:815796151352:android:945c67fbefef13779d72cd",
+        "android_client_info": {
+          "package_name": "com.hexagraph.pattagobhi"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "815796151352-hf3v10dsa1rgo7fretai78gom2a47rva.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.hexagraph.pattagobhi",
+            "certificate_hash": "3f68ba5e547184a0a0602ec0b2a831230f772d6d"
+          }
+        },
+        {
+          "client_id": "815796151352-3hs0s3rr33pj9imgkcsqvf71jr9mfo70.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAa7ISX-Ge7IAKiT_6fqbLa2FMMn8xY3zg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "815796151352-3hs0s3rr33pj9imgkcsqvf71jr9mfo70.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

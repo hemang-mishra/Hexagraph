@@ -1,0 +1,22 @@
+<resources>
+    <string name="app_name">Hexagraph</string>
+    <string name="action_go">Go</string>
+    <string name="baking_title">Baking with Gemini</string>
+    <string name="label_prompt">Prompt</string>
+    <string name="prompt_placeholder">Provide a recipe for the baked goods in the image</string>
+    <string name="image1_description">Cupcake</string>
+    <string name="image2_description">Cookies</string>
+    <string name="image3_description">Cake</string>
+    <string name="results_placeholder">(Results will appear here)</string>
+
+    <string name="default_web_client_id">
+815796151352-3hs0s3rr33pj9imgkcsqvf71jr9mfo70.apps.googleusercontent.com</string>
+
+    <string name="don_t_have_an_account">Don’t have an account?</string>
+    <string name="sign_up_here">Sign Up here</string>
+    <string name="logo_name">logo + name</string>
+    <string name="you_can_connect_with">You can Connect with</string>
+    <string name="image_description">image description</string>
+    <string name="let_s_get_started">Let’s get Started!</string>
+    <string name="lets_login_for_explore_continues">lets login for explore continues</string>
+</resources>
