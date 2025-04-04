@@ -98,5 +98,4 @@ class AuthenticationService {
             .addOnCompleteListener { onTask(it)
             }
     }
-
 }
