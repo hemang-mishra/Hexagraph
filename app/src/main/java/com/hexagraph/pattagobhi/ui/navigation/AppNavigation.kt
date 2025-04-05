@@ -26,6 +26,7 @@ import com.hexagraph.pattagobhi.ui.screens.deck.DeckScreen
 import com.hexagraph.pattagobhi.ui.screens.onboarding.OnBoardingScreen
 import com.hexagraph.pattagobhi.ui.screens.onboarding.OnboardingHelper
 import com.hexagraph.pattagobhi.ui.screens.onboarding.PermissionScreen
+import com.hexagraph.pattagobhi.ui.screens.setting.BackUpScreen
 
 @Composable
 fun AppNavigation(
@@ -50,7 +51,10 @@ fun AppNavigation(
                 navController.navigate(AuthenticationNavigation.CardScreen(deckId, name))
             }, onGenerateButtonClicked = {
                 navController.navigate(AuthenticationNavigation.TopicInputScreen())
-            })
+            },
+                onRefreshClicked = {
+                    navController.navigate(Screens.NavBackUpScreen)
+                })
         }
         composable<Screens.NavPermissionsScreen> {
             PermissionScreen(viewModel = onboardingViewModel, navController)
@@ -115,6 +119,11 @@ fun AppNavigation(
             AddCardScreen(deckId!!, onCardAdded = {
                 navController.navigateUp()
             })
+        }
+        composable<Screens.NavBackUpScreen> {
+            BackUpScreen {
+                navController.navigateUp()
+            }
         }
     }
 }

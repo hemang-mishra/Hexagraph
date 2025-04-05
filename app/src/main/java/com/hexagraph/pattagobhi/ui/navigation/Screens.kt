@@ -15,4 +15,7 @@ sealed class Screens{
     @Serializable
     data object NavPermissionsScreen
 
+    @Serializable
+    data object NavBackUpScreen
+
 }

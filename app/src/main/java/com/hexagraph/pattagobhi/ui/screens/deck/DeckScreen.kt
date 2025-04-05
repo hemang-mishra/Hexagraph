@@ -70,6 +70,7 @@ import com.hexagraph.pattagobhi.R
 @Composable
 fun DeckScreen(
     viewModel: DeckScreenViewModel = hiltViewModel(),
+    onRefreshClicked: ()-> Unit,
     onDeckClicked: (Int,String) -> Unit,
     onGenerateButtonClicked: () -> Unit
 ) {
@@ -124,7 +125,7 @@ fun DeckScreen(
                     IconButton(onClick = { /* TODO: Search */ }) {
                         Icon(Icons.Default.Search, contentDescription = "Search")
                     }
-                    IconButton(onClick = { /* TODO: Refresh */ }) {
+                    IconButton(onClick = { onRefreshClicked() }) {
                         Icon(Icons.Default.Refresh, contentDescription = "Refresh")
                     }
                     IconButton(onClick = { /* TODO: More */ }) {

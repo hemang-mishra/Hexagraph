@@ -8,10 +8,10 @@ import com.hexagraph.pattagobhi.util.Review
 data class Card(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
-    val deckId: Int,
-    val question: String,
-    val answer: String,
-    var review: Review = Review.EASY,
+    val deckId: Int = 0,
+    val question: String = "",
+    val answer: String = "",
+    val review: Review = Review.EASY,
     val reviewRecord: List<String> = emptyList(),
     val nextReview: String = ""
 )

@@ -14,7 +14,7 @@ import com.hexagraph.pattagobhi.util.Review
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-@Database(entities = [Deck::class, Card::class], version = 2)
+@Database(entities = [Deck::class, Card::class], version = 3, exportSchema = false)
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
 
