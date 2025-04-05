@@ -1,6 +1,7 @@
 package com.hexagraph.pattagobhi.di
 
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.hexagraph.pattagobhi.service.AuthenticationService
 import dagger.Module
 import dagger.Provides
@@ -23,4 +24,8 @@ class FirebaseModule {
     fun providesAuthentication(): AuthenticationService{
         return AuthenticationService()
     }
+
+    @Provides
+    @Singleton
+    fun provideFirebaseFireStore(): FirebaseFirestore = FirebaseFirestore.getInstance()
 }
