@@ -170,7 +170,7 @@ private fun NonAnimatedCenterS1(modifier: Modifier) {
         )
         Spacer(modifier = Modifier.height(16.dp))
         Text(
-            text = "Welcome to Khabri!",
+            text = "Welcome to Kuch Bhi",
             style = TextStyle(
                 fontSize = 24.sp,
                 lineHeight = 48.sp,

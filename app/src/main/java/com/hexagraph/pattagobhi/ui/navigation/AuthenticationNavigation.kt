@@ -20,4 +20,7 @@ interface AuthenticationNavigation {
 
     @Serializable
     object CreateAccountPasswordScreen: AuthenticationNavigation
+
+    @Serializable
+    data class CardScreen(val deckId: Int) : AuthenticationNavigation
 }

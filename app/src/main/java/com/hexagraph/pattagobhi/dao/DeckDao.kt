@@ -1,0 +1,28 @@
+package com.hexagraph.pattagobhi.dao
+
+import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
+import com.hexagraph.pattagobhi.Entity.Card
+import com.hexagraph.pattagobhi.Entity.Deck
+import kotlinx.coroutines.flow.Flow
+
+@Dao
+interface DeckDao {
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertDesk(desk: Deck)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertCard(card: Card)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertCards(cards: List<Card>)
+
+    @Query("SELECT * FROM deck")
+    fun getAllDeck(): Flow<List<Deck>>
+    @Query("SELECT * FROM card WHERE deckId = :deckId")
+    fun getCardByDeck(deckId:Int):Flow<List<Card>>
+
+}
