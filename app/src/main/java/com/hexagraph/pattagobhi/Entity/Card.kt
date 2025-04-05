@@ -11,7 +11,7 @@ data class Card(
     val deckId: Int,
     val question: String,
     val answer: String,
-    val review: Review = Review.EASY,
+    val review: Review = Review.NOT_REVIEWED,
     val reviewRecord: List<String> = emptyList(),
     val nextReview: String = ""
 )

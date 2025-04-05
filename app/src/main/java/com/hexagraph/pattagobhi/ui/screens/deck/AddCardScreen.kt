@@ -33,12 +33,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.hexagraph.pattagobhi.Entity.Card
+import com.hexagraph.pattagobhi.util.getCurrentTime
 import dev.jeziellago.compose.markdowntext.MarkdownText
 
 @Composable
 fun AddCardScreen(
-    onAddCard: (String, String) -> Unit,
-    deckId: Int
+    deckId: Int,
+    cardScreenViewModel: CardScreenViewModel = hiltViewModel(),
+    onCardAdded:()->Unit
 ) {
     var question by remember { mutableStateOf("") }
     var answer by remember { mutableStateOf("") }
@@ -128,7 +132,17 @@ fun AddCardScreen(
 
         // Add to Deck Button
         Button(
-            onClick = { onAddCard(question, answer) },
+            onClick = {
+                cardScreenViewModel.addCard(
+                    Card(
+                        deckId = deckId,
+                        question = question,
+                        answer = answer,
+                        nextReview = getCurrentTime()
+                    )
+                )
+                onCardAdded()
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 16.dp),
