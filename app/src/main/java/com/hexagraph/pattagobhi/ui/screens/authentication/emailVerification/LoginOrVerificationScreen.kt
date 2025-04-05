@@ -50,7 +50,7 @@ fun LogInSuccess(navController: NavController) {
     var imageVisible by remember {
         mutableStateOf(false)
     }
-    LaunchedEffect(key1 = Unit) {
+    LaunchedEffect(Unit) {
         delay(500)
         imageVisible = true
     }
@@ -102,7 +102,7 @@ fun LogInSuccess(navController: NavController) {
                     modifier = Modifier.width(314.dp),
                     text = "Next", isEnabled = true
                 ) {
-                    navController.navigate(Screens.NavHomeRoute)
+                    navController.navigate(Screens.NavPermissionsScreen)
                 }
                 Spacer(modifier = Modifier.height(24.dp))
                 BottomRowOfLoginSuccess()

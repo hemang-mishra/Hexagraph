@@ -7,5 +7,5 @@ import androidx.room.PrimaryKey
 data class Deck(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
-    val name: String
+    val name: String = ""
 )

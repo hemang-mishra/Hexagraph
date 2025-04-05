@@ -8,6 +8,7 @@ import com.hexagraph.pattagobhi.Entity.Card
 import com.hexagraph.pattagobhi.Entity.Deck
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
+import kotlinx.coroutines.tasks.await
 import java.util.Locale
 
 @Singleton
@@ -59,5 +60,25 @@ class FirebaseBackupRepository @Inject constructor(
                 Log.e("BackupCard", "Error backing up card", e)
                 onComplete(false, e.message)
             }
+    }
+
+    suspend fun fetchDecks(): List<Deck> {
+        return try {
+            val snapshot = db.collection("users").document(sanitizedEmail).collection("decks").get().await()
+            snapshot.toObjects(Deck::class.java)
+        } catch (e: Exception) {
+            Log.e("FirebaseRepo", "$e")
+            emptyList()
+        }
+    }
+
+    suspend fun fetchCards(): List<Card> {
+        return try {
+            val snapshot = db.collection("users").document(sanitizedEmail).collection("cards").get().await()
+            snapshot.toObjects(Card::class.java)
+        } catch (e: Exception) {
+            Log.e("FirebaseRepo", "$e")
+            emptyList()
+        }
     }
 }

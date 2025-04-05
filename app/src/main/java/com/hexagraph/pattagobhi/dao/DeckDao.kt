@@ -44,4 +44,12 @@ interface DeckDao {
 """)
     fun getReviewCountsByDeck(): Flow<List<ReviewCount>>
 
+    @Query("SELECT * FROM Card")
+    fun getAllCards(): Flow<List<Card>>
+
+    @Query("DELETE FROM deck")
+    suspend fun deleteAllDecks()
+
+    @Query("DELETE FROM card")
+    suspend fun deleteAllCards()
 }
