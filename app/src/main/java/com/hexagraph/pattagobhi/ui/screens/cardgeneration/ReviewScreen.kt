@@ -35,6 +35,7 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Mic
+import androidx.compose.material.icons.filled.QuestionMark
 import androidx.compose.material.icons.filled.VolumeOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -43,6 +44,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -283,7 +285,7 @@ fun TopHeaderSection(
         Row {
             IconButton(onClick = onBackClick) {
                 Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    imageVector = Icons.Default.Mic,
                     contentDescription = "Back",
                     tint = iconTint,
                     modifier = Modifier.size(iconSize)
@@ -301,8 +303,8 @@ fun TopHeaderSection(
 
             IconButton(onClick = onCloseClick) {
                 Icon(
-                    imageVector = Icons.Default.Close,
-                    contentDescription = "Close",
+                    imageVector = Icons.Default.QuestionMark,
+                    contentDescription = "AI",
                     tint = iconTint,
                     modifier = Modifier.size(iconSize)
                 )
@@ -322,7 +324,7 @@ fun MainCardSection(
     onMicClick: () -> Unit,
     shouldShowAnswer: Boolean,
     modifier: Modifier = Modifier,
-    cardBackgroundColor: Color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f),
+    cardBackgroundColor: Color = Color(0xFF393C3F),
     textColor: Color = MaterialTheme.colorScheme.onPrimaryContainer,
     iconTint: Color = Color.Blue,
     iconSize: Dp = 48.dp,
@@ -333,12 +335,12 @@ fun MainCardSection(
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .fillMaxHeight(0.75f),
+            .fillMaxHeight(0.8f),
         colors = CardDefaults.cardColors(containerColor = cardBackgroundColor),
         shape = RoundedCornerShape(12.dp),
     ) {
         Box(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize().border(2.dp, Color.White.copy(alpha = 0.2f), shape = RoundedCornerShape(12.dp)),
         ) {
             // Scrollable Column for content
             Column(
@@ -352,16 +354,15 @@ fun MainCardSection(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(
-                        modifier = Modifier.fillMaxSize(0.7f),
+                        modifier = Modifier.fillMaxWidth(0.75f).padding(top = 8.dp),
                         text = questionText,
                         style = questionTextStyle,
                         color = MaterialTheme.colorScheme.onPrimaryContainer
                     )
-                    IconButton(onClick = onHelpClick) {
+                    IconButton(onClick = onHelpClick, colors = IconButtonDefaults.iconButtonColors(containerColor = Color(0xFF5A6A79))) {
                         Icon(
-                            painter = painterResource(R.drawable.botbutton),
-                            modifier = Modifier.size(25.dp),
-                            tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                            imageVector = Icons.Default.QuestionMark,
+                            modifier = Modifier.size(20.dp),
                             contentDescription = null
                         )
                     }
@@ -549,7 +550,8 @@ fun BottomBarSection(
             onClick = onClick,
             modifier = Modifier
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(cornerRadius)),
+                .clip(RoundedCornerShape(cornerRadius))
+                .padding(top = 40.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = backgroundColor,
                 contentColor = contentColor
@@ -570,13 +572,15 @@ fun ReviewButtons(
 ) {
     val labels = listOf("Hard", "Good", "Easy")
     val backgroundColors = listOf(
+        Color(0xAA861A1A),
         Color(0xAAC68C1D), // mustard yellow with transparency
-        Color(0xAA2E4F26), // dark green with transparency
+        //Color(0xAA2E4F26), // dark green with transparency
         Color(0xAA3E4E5C)  // dark blue-gray with transparency
     )
     val borderColors = listOf(
+        Color(0xFFEA3860),
         Color(0xFFE6B800),
-        Color(0xFF88D957),
+       // Color(0xFF88D957),
         Color(0xFFA2C3DB)
     )
 
