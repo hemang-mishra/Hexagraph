@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -18,6 +19,7 @@ import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
@@ -43,7 +45,9 @@ import androidx.compose.ui.unit.sp
 
 @Composable
 fun AppTextField(
-    modifier: Modifier = Modifier, value: String, onValueChange: (String) -> Unit,
+    modifier: Modifier = Modifier,
+    value: String,
+    onValueChange: (String) -> Unit,
     outerText: String = "Login with email",
     placeholderText: String = "Enter your email",
     icon: ImageVector? = Icons.Default.Email,
@@ -52,107 +56,91 @@ fun AppTextField(
     isPassword: Boolean = false,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default
 ) {
-
+    // Use fillMaxWidth for responsiveness rather than a fixed width.
     Box(
-        modifier = modifier.width(314.dp)
+        modifier = modifier.fillMaxWidth(0.9f)
     ) {
         Column(
-            verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top),
-            modifier = Modifier.fillMaxSize()
+            verticalArrangement = Arrangement.spacedBy(4.dp),
+            modifier = Modifier.fillMaxWidth()
         ) {
             Text(
                 text = outerText,
-                // content 16 bold
-                style = TextStyle(
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight(500),
+                style = MaterialTheme.typography.titleMedium.copy(
+                    fontWeight = FontWeight.Medium
                 ),
-                modifier = Modifier.height(20.dp)
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.fillMaxWidth()
             )
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(4.dp))
             LoginTextField(
-                modifier =
-                    Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 placeholderText = placeholderText,
                 value = value,
                 icon = icon,
                 isError = isError,
                 errorText = errorText,
                 keyboardOptions = keyboardOptions,
-                isPassword = isPassword
-            ) {
-                onValueChange(it)
-            }
+                isPassword = isPassword,
+                onValueChange = onValueChange
+            )
         }
     }
 }
 
-
 @Composable
 fun LoginTextField(
-    modifier: Modifier, placeholderText: String,
+    modifier: Modifier,
+    placeholderText: String,
     icon: ImageVector? = Icons.Default.Email,
-    value: String, isError: Boolean,
-    isPassword: Boolean, keyboardOptions: KeyboardOptions,
-    errorText: String, onValueChange: (String) -> Unit,
+    value: String,
+    isError: Boolean,
+    isPassword: Boolean,
+    keyboardOptions: KeyboardOptions,
+    errorText: String,
+    onValueChange: (String) -> Unit,
 ) {
-    var showPassword by remember {
-        mutableStateOf(false)
-    }
-    OutlinedTextField(value = value, onValueChange = {
-        onValueChange(it)
-    }, placeholder = {
-        Text(
-            text = placeholderText,
-            // content 16
-            style = TextStyle(
-                fontSize = 16.sp,
-                lineHeight = 21.sp,
-                fontWeight = FontWeight(400),
-//                color = Color(0xFFADADAD),
+    var showPassword by remember { mutableStateOf(false) }
+    OutlinedTextField(
+        value = value,
+        onValueChange = onValueChange,
+        placeholder = {
+            Text(
+                text = placeholderText,
+                style = MaterialTheme.typography.bodyLarge
             )
-        )
-    },
+        },
         keyboardOptions = keyboardOptions,
         visualTransformation = if (isPassword && !showPassword) PasswordVisualTransformation() else VisualTransformation.None,
         isError = isError,
-        supportingText = { if (isError) Text(text = errorText) },
+        supportingText = { if (isError) Text(text = errorText, color = MaterialTheme.colorScheme.error) },
         leadingIcon = {
-            if(icon != null)
+            icon?.let {
                 Icon(
-                    imageVector = icon, contentDescription = null,
-//                tint = Color(0xfffb8a7a),
-                    modifier = Modifier
-                        .width(20.dp)
-                        .height(16.dp)
+                    imageVector = it,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(24.dp)
                 )
-
+            }
         },
         trailingIcon = {
-            if (isPassword)
+            if (isPassword) {
                 IconButton(onClick = { showPassword = !showPassword }) {
                     Icon(
-                        imageVector =
-                            if (showPassword) Icons.Default.VisibilityOff
-                            else
-                                Icons.Default.Visibility,
-                        contentDescription = null
+                        imageVector = if (showPassword) Icons.Default.VisibilityOff else Icons.Default.Visibility,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary
                     )
                 }
+            }
         },
-//        colors = TextFieldDefaults.colors(
-//            focusedContainerColor = Color(0x99AED5FF),
-//            unfocusedContainerColor = Color(0x99AED5FF),
-//            errorContainerColor = Color(0x99AED5FF),
-//            disabledContainerColor = Color(0x99AED5FF),
-//            unfocusedIndicatorColor = Color(0x99939FAC),
-//            focusedIndicatorColor = colorResource(id = R.color.colorPrimary),
-//            errorIndicatorColor = Color(194, 27, 33, 128)
-//        ),
-//        shape = RoundedCornerShape(10.dp),
+
+        shape = MaterialTheme.shapes.medium,
         modifier = modifier
     )
 }
+
 
 
 @Composable
