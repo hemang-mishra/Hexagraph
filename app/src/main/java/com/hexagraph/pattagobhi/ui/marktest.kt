@@ -1,6 +1,5 @@
 package com.hexagraph.pattagobhi.ui
 
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -9,7 +8,7 @@ import dev.jeziellago.compose.markdowntext.MarkdownText
 
 @Preview(showBackground = true)
 @Composable
-fun See(){
+fun See() {
     MarkdownText(
         """
         # Welcome to Compose Markdown
