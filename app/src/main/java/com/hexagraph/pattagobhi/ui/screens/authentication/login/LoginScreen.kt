@@ -104,7 +104,7 @@ fun LogInScreen(viewModel: LoginViewModel = hiltViewModel(), navController: NavC
                     item {
                         HeadingOfLoginScreen(
                             largeText = stringResource(R.string.let_s_get_started),
-                            smallText = stringResource(R.string.lets_login_for_explore_continues)
+                            smallText = "Log In to create and save cards"
                         )
                         Spacer(modifier = Modifier.height(30.dp))
                     }
@@ -284,7 +284,7 @@ fun HeadingOfLoginScreen(largeText: String, smallText: String) {
     ) {
         Text(
             text = largeText,
-
+            modifier = Modifier.padding(top = 20.dp),
             // heading large 24
             style = TextStyle(
                 fontSize = 24.sp,

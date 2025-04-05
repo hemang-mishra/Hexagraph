@@ -20,8 +20,9 @@ import com.hexagraph.pattagobhi.ui.screens.authentication.emailVerification.Veri
 import com.hexagraph.pattagobhi.ui.screens.authentication.login.LogInScreen
 import com.hexagraph.pattagobhi.ui.screens.authentication.login.LoginViewModel
 import com.hexagraph.pattagobhi.ui.screens.cardgeneration.MainCardGenerationScreen
-import com.hexagraph.pattagobhi.ui.screens.chat.BotScreen
-import com.hexagraph.pattagobhi.ui.screens.home.HomeScreen
+import com.hexagraph.pattagobhi.ui.screens.deck.AddCardScreen
+import com.hexagraph.pattagobhi.ui.screens.deck.CardScreen
+import com.hexagraph.pattagobhi.ui.screens.deck.DeckScreen
 import com.hexagraph.pattagobhi.ui.screens.onboarding.OnBoardingScreen
 import com.hexagraph.pattagobhi.ui.screens.onboarding.OnboardingHelper
 import com.hexagraph.pattagobhi.ui.screens.onboarding.PermissionScreen
@@ -31,22 +32,25 @@ fun AppNavigation(
     navController: NavController = rememberNavController(),
     onboardingViewModel: OnboardingHelper,
     snackbarHostState: SnackbarHostState,
-){
+) {
     val loginViewModel = hiltViewModel<LoginViewModel>()
     val emailVerificationViewModel = hiltViewModel<EmailVerificationViewModel>()
     val createAccountViewModel = hiltViewModel<CreateAccountViewModel>()
 
     NavHost(
         navController = navController as NavHostController,
-        startDestination = if (FirebaseAuth.getInstance().currentUser != null){
-            if(onboardingViewModel.areAllPermissionsGranted())
+        startDestination = if (FirebaseAuth.getInstance().currentUser != null) {
+            if (onboardingViewModel.areAllPermissionsGranted())
                 Screens.NavHomeRoute
             else Screens.NavPermissionsScreen
-        }
-             else Screens.NavOnboardingScreen
-    ){
+        } else Screens.NavOnboardingScreen
+    ) {
         composable<Screens.NavHomeRoute> {
-            MainCardGenerationScreen(snackbarHostState = snackbarHostState)
+            DeckScreen(onDeckClicked = { deckId, name ->
+                navController.navigate(AuthenticationNavigation.CardScreen(deckId, name))
+            }, onGenerateButtonClicked = {
+                navController.navigate(AuthenticationNavigation.TopicInputScreen)
+            })
         }
         composable<Screens.NavPermissionsScreen> {
             PermissionScreen(viewModel = onboardingViewModel, navController)
@@ -83,6 +87,17 @@ fun AppNavigation(
         }
         composable<AuthenticationNavigation.ForgotPasswordScreen> {
             ForgotPassword(navController = navController)
+        }
+        composable<AuthenticationNavigation.CardScreen> { backStackEntry ->
+            val deckId = backStackEntry.arguments?.getInt("deckId")
+            val name = backStackEntry.arguments?.getString("name")
+//            CardScreen(deckId = deckId!!, name = name!!)
+            AddCardScreen(onAddCard = { _, _ ->
+
+            }, deckId = deckId!!)
+        }
+        composable<AuthenticationNavigation.TopicInputScreen> {
+            MainCardGenerationScreen(snackbarHostState = snackbarHostState)
         }
     }
 }

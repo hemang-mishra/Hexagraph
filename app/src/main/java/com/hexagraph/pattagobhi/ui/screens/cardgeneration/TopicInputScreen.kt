@@ -5,7 +5,11 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Bolt
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Lightbulb
+import androidx.compose.material.icons.filled.Money
+import androidx.compose.material.icons.filled.QuestionMark
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -17,6 +21,7 @@ import androidx.compose.ui.unit.sp
 import com.hexagraph.pattagobhi.ui.components.AppButton
 import com.hexagraph.pattagobhi.ui.components.AppTextField
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.hilt.navigation.compose.hiltViewModel
 
 @Composable
 fun TopicInputScreen(
@@ -62,7 +67,7 @@ private fun TopicInputScreenBase(
         // Topic input field
         AppTextField(
             value = uiState.topic,
-            icon = Icons.Default.Lightbulb,
+            icon = Icons.Default.QuestionMark,
             onValueChange = onTopicChange,
             outerText = "Topic",
             placeholderText = "Enter topic",
@@ -76,7 +81,8 @@ private fun TopicInputScreenBase(
             outerText = "Easy Questions",
             placeholderText = "Enter number of easy questions",
             errorText = "Must be a valid integer",
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            icon = Icons.Default.Check
         )
 
         // Number of Medium Questions
@@ -86,7 +92,8 @@ private fun TopicInputScreenBase(
             outerText = "Medium Questions",
             placeholderText = "Enter number of medium questions",
             errorText = "Must be a valid integer",
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            icon = Icons.Default.Lightbulb
         )
 
         // Number of Hard Questions
@@ -96,7 +103,8 @@ private fun TopicInputScreenBase(
             outerText = "Hard Questions",
             placeholderText = "Enter number of hard questions",
             errorText = "Must be a valid integer",
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            icon = Icons.Default.Bolt
         )
 
         // Generate button, enabled when topic is provided and all question fields are valid.

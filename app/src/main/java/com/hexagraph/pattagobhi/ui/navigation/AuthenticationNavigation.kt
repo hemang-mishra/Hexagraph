@@ -4,23 +4,27 @@ import kotlinx.serialization.Serializable
 
 interface AuthenticationNavigation {
     @Serializable
-    object LoginScreen: AuthenticationNavigation
+    object LoginScreen : AuthenticationNavigation
 
     @Serializable
-    object CreateAccountScreen: AuthenticationNavigation
+    object CreateAccountScreen : AuthenticationNavigation
 
     @Serializable
-    data class EmailVerificationScreen(val email: String, val password: String): AuthenticationNavigation
+    data class EmailVerificationScreen(val email: String, val password: String) :
+        AuthenticationNavigation
 
     @Serializable
-    object ForgotPasswordScreen: AuthenticationNavigation
+    object ForgotPasswordScreen : AuthenticationNavigation
 
     @Serializable
-    object LoginSuccessScreen: AuthenticationNavigation
+    object LoginSuccessScreen : AuthenticationNavigation
 
     @Serializable
-    object CreateAccountPasswordScreen: AuthenticationNavigation
+    object CreateAccountPasswordScreen : AuthenticationNavigation
 
     @Serializable
-    data class CardScreen(val deckId: Int) : AuthenticationNavigation
+    data class CardScreen(val deckId: Int,val name : String) : AuthenticationNavigation
+
+    @Serializable
+    object TopicInputScreen : AuthenticationNavigation
 }

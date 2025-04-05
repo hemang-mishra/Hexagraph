@@ -31,6 +31,28 @@ fun MainCardGenerationScreen(
     snackbarHostState: SnackbarHostState
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    Scaffold {padding->
+        AnimatedContent(
+            modifier = Modifier.padding(padding),
+            targetState = uiState.currentScreen,
+            transitionSpec = {
+                fadeIn() togetherWith fadeOut()
+            }
+        ) { targetScreen ->
+            when (targetScreen) {
+                CurrentScreen.TopicInputScreen -> {
+                    TopicInputScreen(
+                        viewModel = viewModel,
+                        onGenerateClick = {
+                            viewModel.generateQuestions(
+                                uiState.cardGenerationUIStateForUI.topic,
+                                uiState.cardGenerationUIStateForUI.easyQuestions.toInt(),
+                                uiState.cardGenerationUIStateForUI.mediumQuestions.toInt(),
+                                uiState.cardGenerationUIStateForUI.hardQuestions.toInt(),
+                            )
+                        }
+                    )
+                }
 
     Scaffold(
         modifier = Modifier.fillMaxSize()

@@ -5,10 +5,14 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.remember
@@ -24,31 +28,39 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
         setContent {
             HexagraphTheme {
                 val snackbarHostState = remember() {
                     SnackbarHostState()
                 }
                 // A surface container using the 'background' color from the theme
-                Surface(
-                    modifier = Modifier.Companion.fillMaxSize()
-                        .statusBarsPadding()
-                        .navigationBarsPadding(),
-                    color = MaterialTheme.colorScheme.background,
-                ) {
-                    AppNavigation(snackbarHostState = snackbarHostState, onboardingViewModel = OnboardingHelper)
-                }
+//                Scaffold(
+//                    modifier = Modifier.Companion.fillMaxSize()
+//
+//                ) { paddingvalues ->
+                    Box(modifier = Modifier) {
+                        AppNavigation(
+                            snackbarHostState = snackbarHostState,
+                            onboardingViewModel = OnboardingHelper
+                        )
+                    }
+//                }
             }
         }
     }
 
-    private fun refreshPermissionsStatus(onboardingViewModel: OnboardingHelper){
+    private fun refreshPermissionsStatus(onboardingViewModel: OnboardingHelper) {
         PermissionsRequired.entries.forEach {
-            if(ContextCompat.checkSelfPermission(this, it.permission) == PackageManager.PERMISSION_GRANTED){
+            if (ContextCompat.checkSelfPermission(
+                    this,
+                    it.permission
+                ) == PackageManager.PERMISSION_GRANTED
+            ) {
                 onboardingViewModel.visiblePermissionDialogQueue.remove(it)
 
-            }else{
-                if(!onboardingViewModel.visiblePermissionDialogQueue.contains(it)){
+            } else {
+                if (!onboardingViewModel.visiblePermissionDialogQueue.contains(it)) {
                     onboardingViewModel.visiblePermissionDialogQueue.add(it)
                 }
             }

@@ -107,7 +107,7 @@ private fun Logo(modifier: Modifier) {
 @Composable
 private fun ImageGroupS1(modifier: Modifier) {
     Image(
-        painter = painterResource(id = R.drawable.news1_removebg_preview),
+        painter = painterResource(id = R.drawable.welcome_splash),
         contentDescription = null,
         modifier = modifier
             .padding(1.dp)
@@ -133,7 +133,7 @@ private fun GroupCenterS2(modifier: Modifier) {
 //            modifier = Modifier.fillMaxWidth()
 //        )
         Image(
-            painter = painterResource(id = R.drawable.news2_removebg_preview),
+            painter = painterResource(id = R.drawable.welcome_splash),
             contentDescription = null,
             modifier = Modifier.align(Alignment.Center)
         )
@@ -145,7 +145,7 @@ private fun GroupCenterS3(modifier: Modifier) {
     Box(modifier = modifier) {
 //        Image(painter = painterResource(id = R.drawable.backs3), contentDescription = null)
         Image(
-            painter = painterResource(id = R.drawable.news3_removebg_preview),
+            painter = painterResource(id = R.drawable.welcome_splash),
             contentDescription = null,
             modifier = Modifier
                 .align(Alignment.Center)

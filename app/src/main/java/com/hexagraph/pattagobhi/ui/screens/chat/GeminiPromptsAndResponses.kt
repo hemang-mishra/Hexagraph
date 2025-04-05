@@ -30,10 +30,10 @@ object GeminiPrompts{
     }
     fun generateAnswerPrompt(topic: String, question: String, difficulty: String): String{
         val numberOfWorkds = when(difficulty){
-            "Medium"-> 20
-            "Easy" -> 10
-            "Hard" -> 30
-            else -> 20
+            "Medium"-> 30
+            "Easy" -> 15
+            "Hard" -> 50
+            else -> 30
         }
         return "Topic: $topic\n" +
                 "\n" +

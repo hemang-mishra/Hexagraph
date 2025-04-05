@@ -102,7 +102,8 @@ dependencies {
     //GSON
     implementation(libs.gson)
 
-
+    //Markdown
+    implementation("com.github.jeziellago:compose-markdown:0.5.7")
     // The following line is optional, as the core library is included indirectly by camera-camera2
     implementation(libs.androidx.camera.core)
     implementation(libs.androidx.camera.camera2)
@@ -135,4 +136,7 @@ dependencies {
 
     //Lottie Animation
     implementation(libs.lottie.compose)
+
+    implementation("com.google.accompanist:accompanist-systemuicontroller:0.36.0")
+
 }

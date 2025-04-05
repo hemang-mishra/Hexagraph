@@ -34,6 +34,7 @@ object DatabaseModule {
             "flashcard-db"
         )
             .addCallback(AppDatabase.Callback(scope, context))
+            .fallbackToDestructiveMigration()
             .build()
     }
 

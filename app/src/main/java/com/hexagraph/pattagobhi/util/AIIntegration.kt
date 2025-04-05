@@ -11,7 +11,12 @@ import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.MappedByteBuffer
 import java.nio.channels.FileChannel
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import kotlin.math.sqrt
+import kotlin.math.max
+import kotlin.math.min
+import kotlin.math.pow
 
 object AIIntegration {
     private const val FACE_NET_MODEL_PATH = "face_net_512.tflite"
@@ -33,22 +38,28 @@ object AIIntegration {
         val fileChannel = inputStream.channel
         val startOffset = fileDescriptor.startOffset
         val declaredLength = fileDescriptor.declaredLength
-        val modelBuffer: MappedByteBuffer = fileChannel.map(FileChannel.MapMode.READ_ONLY, startOffset, declaredLength)
+        val modelBuffer: MappedByteBuffer =
+            fileChannel.map(FileChannel.MapMode.READ_ONLY, startOffset, declaredLength)
         return Interpreter(modelBuffer)
     }
+
     val Context.faceNetInterceptor get() = getInterceptor(FACE_NET_MODEL_PATH, this)
     val Context.antiSpoofInterceptor get() = getInterceptor(ANTI_SPOOF_MODEL_PATH, this)
     val Context.mobileNetInterceptor get() = getInterceptor(MOBILE_NET_MODEL_PATH, this)
 
 
     //Prepare the input Bitmap for MobileFaceNet
-    fun preprocessBitmapForMobileFaceNet(bitmap: Bitmap, size: Int, isModelQuantized: Boolean = false): Result<ByteBuffer> = runCatching {
+    fun preprocessBitmapForMobileFaceNet(
+        bitmap: Bitmap,
+        size: Int,
+        isModelQuantized: Boolean = false
+    ): Result<ByteBuffer> = runCatching {
         val resizedBitmap = bitmap.scale(size, size)
-        val inputBuffer = ByteBuffer.allocateDirect(size*size*3*4).apply {
+        val inputBuffer = ByteBuffer.allocateDirect(size * size * 3 * 4).apply {
             order(ByteOrder.nativeOrder())
         }
-        for( y in 0 until size){
-            for (z in 0 until size){
+        for (y in 0 until size) {
+            for (z in 0 until size) {
                 val pixelValue = resizedBitmap[z, y]
                 if (isModelQuantized) {
                     // Quantized model
@@ -65,21 +76,24 @@ object AIIntegration {
         }
         inputBuffer
     }.onFailure {
-        Log.e("AIIntegration", it.message?:"Error while preprocessing bitmap for MobileFaceNet")
+        Log.e("AIIntegration", it.message ?: "Error while preprocessing bitmap for MobileFaceNet")
     }
 
     // Calculate the cosine similarity between two embeddings
-    fun calculateCosineSimilarity(embeddingBuffer1: ByteBuffer, embeddingBuffer2: ByteBuffer): Result<Float> = runCatching {
+    fun calculateCosineSimilarity(
+        embeddingBuffer1: ByteBuffer,
+        embeddingBuffer2: ByteBuffer
+    ): Result<Float> = runCatching {
         var dotProduct = 0.0f
-        var norm1 =0.0f
+        var norm1 = 0.0f
         var norm2 = 0.0f
 
-        for (i in 0 until FACE_NET_EMBEDDING_SIZE){
-            val value1 = embeddingBuffer1.getFloat(i*4)
-            val value2 = embeddingBuffer2.getFloat(i*4)
-            dotProduct += value1*value2
-            norm1 += value1*value1
-            norm2 += value2*value2
+        for (i in 0 until FACE_NET_EMBEDDING_SIZE) {
+            val value1 = embeddingBuffer1.getFloat(i * 4)
+            val value2 = embeddingBuffer2.getFloat(i * 4)
+            dotProduct += value1 * value2
+            norm1 += value1 * value1
+            norm2 += value2 * value2
         }
 
         norm1 = sqrt(norm1)
@@ -87,17 +101,67 @@ object AIIntegration {
 
         dotProduct / (norm2 * norm1)
     }.onFailure {
-        Log.e("AIIntegration", it.message?:"Error while calculating cosine similarity")
+        Log.e("AIIntegration", it.message ?: "Error while calculating cosine similarity")
     }
 
-    fun calculateDistanceBtwEmbeddings(embeddingBuffer1: ByteBuffer, embeddingBuffer2: ByteBuffer): Result<Float> = runCatching {
+    fun calculateDistanceBtwEmbeddings(
+        embeddingBuffer1: ByteBuffer,
+        embeddingBuffer2: ByteBuffer
+    ): Result<Float> = runCatching {
         var sum = 0.0f
-        for(i in 0 until FACE_NET_EMBEDDING_SIZE){
-            val diff = embeddingBuffer1.getFloat(i*4) - embeddingBuffer2.getFloat(i*4)
-            sum +=diff*diff
+        for (i in 0 until FACE_NET_EMBEDDING_SIZE) {
+            val diff = embeddingBuffer1.getFloat(i * 4) - embeddingBuffer2.getFloat(i * 4)
+            sum += diff * diff
         }
         sqrt(sum.toDouble()).toFloat()
     }.onFailure {
-        Log.e("AIIntegration", it.message?:"Error while calculating distance between embeddings")
+        Log.e("AIIntegration", it.message ?: "Error while calculating distance between embeddings")
     }
+}
+
+fun getCurrentTime(): String {
+    val current = LocalDateTime.now()
+    val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+    return current.format(formatter)
+}
+
+fun calculateHalfLife(nReviews: Int, difficulty: Double): Double {
+    // Step 1: Initial half-life (based on difficulty)
+    val minInitial = 15 * 60          // 15 minutes in seconds
+    val maxInitial = 12 * 3600        // 12 hours in seconds
+    val initialHalfLife = maxInitial - (maxInitial - minInitial) * difficulty
+
+    // Step 2: Multiplier logic based on review count and difficulty
+    val multiplier = if (nReviews < 10) {
+        when {
+            difficulty <= 0.3 -> 1.3
+            difficulty <= 0.7 -> 1.1
+            else -> 1.05
+        }
+    } else {
+        when {
+            difficulty <= 0.3 -> 1.8
+            difficulty <= 0.7 -> 0.95
+            else -> 0.85
+        }
+    }
+
+    // Step 3: Apply growth (starting from review #2)
+    val effectiveReviews = max(nReviews - 1, 0)
+    val halfLifeSeconds = initialHalfLife * multiplier.pow(effectiveReviews)
+
+    // Step 4: Clamp between 15 minutes and 30 days
+    val minSeconds = 15 * 60
+    val maxSeconds = 30 * 24 * 3600
+
+    return max(min(halfLifeSeconds, maxSeconds.toDouble()), minSeconds.toDouble())
+}
+
+fun getNextReviewTime(nReviews: Int, difficulty: Double): String {
+    val currentTime = LocalDateTime.now()
+    val halfLifeSeconds = calculateHalfLife(nReviews, difficulty).toLong()
+
+    val nextReviewTime = currentTime.plusSeconds(halfLifeSeconds)
+    val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+    return nextReviewTime.format(formatter)
 }

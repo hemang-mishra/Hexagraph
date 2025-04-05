@@ -4,14 +4,18 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.hexagraph.pattagobhi.Entity.Card
+import com.hexagraph.pattagobhi.Entity.Converters
 import com.hexagraph.pattagobhi.Entity.Deck
 import com.hexagraph.pattagobhi.dao.DeckDao
+import com.hexagraph.pattagobhi.util.Review
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-@Database(entities = [Deck::class, Card::class], version = 1)
+@Database(entities = [Deck::class, Card::class], version = 2)
+@TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun deskDao(): DeckDao
@@ -28,7 +32,8 @@ abstract class AppDatabase : RoomDatabase() {
                 context,
                 AppDatabase::class.java,
                 "flashcard-db"
-            ).build()
+            ).fallbackToDestructiveMigration()
+                .build()
 
             val dao = database.deskDao()
 
@@ -39,7 +44,7 @@ abstract class AppDatabase : RoomDatabase() {
                     deckId = 1,
                     question = "What is Kotlin?",
                     answer = "A modern programming language for Android",
-                    review = "Easy"
+                    review = Review.EASY
                 )
                 dao.insertDesk(defaultDeck)
                 dao.insertCard(defaultCard)
