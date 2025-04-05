@@ -26,5 +26,5 @@ interface AuthenticationNavigation {
     data class CardScreen(val deckId: Int,val name : String) : AuthenticationNavigation
 
     @Serializable
-    object TopicInputScreen : AuthenticationNavigation
+    data class TopicInputScreen(val deckID: Int? = null) : AuthenticationNavigation
 }

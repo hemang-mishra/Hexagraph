@@ -2,6 +2,7 @@ package com.hexagraph.pattagobhi.ui.screens.cardgeneration
 
 import androidx.lifecycle.viewModelScope
 import com.hexagraph.pattagobhi.Entity.Card
+import com.hexagraph.pattagobhi.dao.DeckDao
 import com.hexagraph.pattagobhi.model.ResponseError
 import com.hexagraph.pattagobhi.service.GeminiService
 import com.hexagraph.pattagobhi.ui.screens.chat.GeminiPrompts
@@ -9,17 +10,21 @@ import com.hexagraph.pattagobhi.ui.screens.onboarding.BaseViewModel
 import com.hexagraph.pattagobhi.util.Review
 import com.hexagraph.pattagobhi.util.Utils.separateQuestions
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class CardGenerationViewModel @Inject constructor() :
+class CardGenerationViewModel @Inject constructor(
+    private val deckDao: DeckDao
+) :
     BaseViewModel<CardGenerationUIState>() {
 
     private val createGenerationUIStateFlow = MutableStateFlow(CardGenerationUIState())
@@ -177,6 +182,28 @@ class CardGenerationViewModel @Inject constructor() :
             reviewScreenStateFlow.value = reviewScreenStateFlow.value.copy(
                 currentState = currentStateOfReviewScreen
             )
+        }
+    }
+
+    //Initialization for review
+    fun initializeReviewScreen(deckId: Int){
+        viewModelScope.launch(Dispatchers.IO) {
+            deckDao.getCardByDeck(deckId).collectLatest {
+                val easyCards = it.filter { card -> card.review == Review.EASY }
+                val mediumCards = it.filter { card -> card.review == Review.MEDIUM }
+                val hardCards = it.filter { card -> card.review == Review.HARD }
+                createGenerationUIStateFlow.emit(
+                    createGenerationUIStateFlow.value.copy(
+                        easyCards = easyCards,
+                        mediumCards = mediumCards,
+                        hardCards = hardCards,
+                        easyQuestions = easyCards.map { it.question },
+                        mediumQuestions = mediumCards.map { it.question },
+                        hardQuestions = hardCards.map { it.question },
+                        currentScreen = CurrentScreen.ReviewScreen
+                    )
+                )
+            }
         }
     }
 

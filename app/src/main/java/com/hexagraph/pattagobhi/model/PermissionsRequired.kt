@@ -17,11 +17,12 @@ enum class PermissionsRequired(
     val rationaleText: String,
     val image: ImageVector
 ) {
-    CAMERA(
-        permission = Manifest.permission.CAMERA,
-        title = "Camera Permission Required",
-        permanentlyDeclinedText = "Seems you have permanently declined this permission. Give access to this permission in settings",
-        rationaleText = "Give access to this permission for Camera Feed.",
-        image = Icons.Default.CameraAlt
+    MICROPHONE_PERMISSION(
+        permission = Manifest.permission.RECORD_AUDIO,
+        title = "Microphone Permission Required",
+        permanentlyDeclinedText = " Seems you have permanently declined this permission. Give access to this permission in settings",
+        rationaleText = "Give access to this permission for Audio Recording.",
+        image = Icons.Default.MusicNote
     )
+
 }

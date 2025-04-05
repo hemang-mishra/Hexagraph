@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -23,11 +24,16 @@ import com.hexagraph.pattagobhi.ui.screens.chat.BotScreen
 @Composable
 fun MainCardGenerationScreen(
     viewModel: CardGenerationViewModel = hiltViewModel(),
+    deckId: Int? = null,
     snackbarHostState: SnackbarHostState
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
-
+    LaunchedEffect(deckId) {
+        if(deckId!= null){
+            viewModel.initializeReviewScreen(deckId)
+        }
+    }
     Scaffold(
         modifier = Modifier.fillMaxSize()
     ) { padding ->
