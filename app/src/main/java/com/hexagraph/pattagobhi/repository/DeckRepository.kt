@@ -5,6 +5,7 @@ import com.hexagraph.pattagobhi.Entity.Deck
 import com.hexagraph.pattagobhi.dao.DeckDao
 import com.hexagraph.pattagobhi.ui.screens.deck.DeckUI
 import com.hexagraph.pattagobhi.util.Review
+import com.hexagraph.pattagobhi.util.getCurrentTime
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import javax.inject.Inject
@@ -31,13 +32,13 @@ class DeckRepository @Inject constructor(
     ) { decks, counts ->
 
         val countMap = counts.groupBy { it.deckId }
-
+        val currentTime = getCurrentTime()
         decks.map { deck ->
             val reviewCounts = countMap[deck.id].orEmpty()
 
-            val hard = reviewCounts.find { it.review == Review.HARD  }?.count ?: 0
-            val medium = reviewCounts.find { it.review == Review.MEDIUM }?.count ?: 0
-            val easy = reviewCounts.find { it.review == Review.EASY }?.count ?: 0
+            val hard = reviewCounts.find { it.review == Review.HARD && it.nextReview<=currentTime }?.count ?: 0
+            val medium = reviewCounts.find { it.review == Review.MEDIUM  && it.nextReview<=currentTime}?.count ?: 0
+            val easy = reviewCounts.find { it.review == Review.EASY  && it.nextReview<=currentTime}?.count ?: 0
 
             DeckUI(
                 id = deck.id,

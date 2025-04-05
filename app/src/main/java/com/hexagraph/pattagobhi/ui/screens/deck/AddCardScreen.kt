@@ -14,11 +14,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.FolderOpen
 import androidx.compose.material.icons.filled.RemoveRedEye
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
@@ -32,6 +34,7 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -46,6 +49,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.hexagraph.pattagobhi.Entity.Card
+import com.hexagraph.pattagobhi.util.Review
 import com.hexagraph.pattagobhi.util.getCurrentTime
 import dev.jeziellago.compose.markdowntext.MarkdownText
 
@@ -54,32 +58,57 @@ import dev.jeziellago.compose.markdowntext.MarkdownText
 fun AddCardScreen(
     deckId: Int,
     cardScreenViewModel: CardScreenViewModel = hiltViewModel(),
-    onCardAdded:()->Unit
+    onCardAdded: () -> Unit
 ) {
+    var showWarningDialog by remember { mutableStateOf(false) }
     var question by remember { mutableStateOf("") }
     var answer by remember { mutableStateOf("") }
     var markDownPreview by remember { mutableStateOf(false) }
+    if (showWarningDialog) {
+        AlertDialog(
+            onDismissRequest = { showWarningDialog = false },
+            title = { Text("Warning") },
+            text = { Text("This page can't be saved.") },
+            confirmButton = {
+                TextButton(onClick = {
+                    showWarningDialog = false
+                    onCardAdded() // Proceed with navigation or exit action
+                }) {
+                    Text("OK")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showWarningDialog = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
     Log.d("MarkDown", answer)
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Add Card")},
+                title = { Text("Add Card") },
                 navigationIcon = {
-                    IconButton(onClick = { /* TODO: Open Drawer */ }) {
+                    IconButton(onClick = { showWarningDialog = true }) {
                         Icon(Icons.Default.ChevronLeft, contentDescription = "Menu")
                     }
                 },
                 actions = {
-                    IconButton(onClick = { /* TODO: Rename */ }) {
-                        Icon(Icons.Default.RemoveRedEye, contentDescription = "Rename")
+                    IconButton(onClick = { markDownPreview = !markDownPreview }) {
+                        if (markDownPreview)
+                            Icon(
+                                Icons.Default.Edit,
+                                contentDescription = "Edit",
+                                tint = Color.White
+                            )
+                        else Icon(Icons.Default.RemoveRedEye, contentDescription = "Rename")
                     }
-                    IconButton(onClick = { /* TODO: Delete */ }) {
-                        Icon(Icons.Default.DeleteOutline, contentDescription = "Delete")
-                    }
+
                 }
             )
         }
-    ){
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -118,7 +147,11 @@ fun AddCardScreen(
 
                 )
 
-            HorizontalDivider(thickness = 1.dp, color = Color.Gray, modifier = Modifier.padding(top=20.dp))
+            HorizontalDivider(
+                thickness = 1.dp,
+                color = Color.Gray,
+                modifier = Modifier.padding(top = 20.dp)
+            )
 
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -127,11 +160,11 @@ fun AddCardScreen(
                     .padding(top = 16.dp)
             ) {
                 Text("Answer", color = Color.White, modifier = Modifier.weight(1f))
-                IconButton(onClick = { markDownPreview = !markDownPreview }) {
-                    if (markDownPreview)
-                        Icon(Icons.Default.Edit, contentDescription = "Edit", tint = Color.White)
-                    else Icon(Icons.Default.FolderOpen, contentDescription = null, tint = Color.White)
-                }
+//                IconButton(onClick = { markDownPreview = !markDownPreview }) {
+//                    if (markDownPreview)
+//                        Icon(Icons.Default.Edit, contentDescription = "Edit", tint = Color.White)
+//                    else Icon(Icons.Default.FolderOpen, contentDescription = null, tint = Color.White)
+//                }
             }
 
             // Answer TextField (multi-line)
@@ -160,8 +193,10 @@ fun AddCardScreen(
                     maxLines = 10,
                     shape = RoundedCornerShape(12.dp)
                 )
-            if(!markDownPreview)
-            DifficultySelector(Modifier.padding(top = 12.dp))
+            val (selectedOption, onOptionSelected) = remember { mutableStateOf(Review.EASY) }
+
+            if (!markDownPreview)
+                DifficultySelector(Modifier.padding(top = 12.dp), selectedOption, onOptionSelected)
             Spacer(modifier = Modifier.weight(1f))
 
             // Add to Deck Button
@@ -172,7 +207,8 @@ fun AddCardScreen(
                             deckId = deckId,
                             question = question,
                             answer = answer,
-                            nextReview = getCurrentTime()
+                            nextReview = getCurrentTime(),
+                            review = selectedOption
                         )
                     )
                     onCardAdded()
@@ -195,18 +231,21 @@ fun AddCardScreen(
 }
 
 @Composable
-fun DifficultySelector(modifier: Modifier = Modifier) {
-    val (selectedOption, onOptionSelected) = remember { mutableStateOf("Easy") }
+fun DifficultySelector(
+    modifier: Modifier = Modifier,
+    selectedOption: Review,
+    onOptionSelected: (Review) -> Unit
+) {
 
     Row(modifier = modifier.fillMaxWidth()) {
-        DifficultyOption("Easy", selectedOption, onOptionSelected)
-        DifficultyOption("Medium", selectedOption, onOptionSelected)
-        DifficultyOption("Hard", selectedOption, onOptionSelected)
+        DifficultyOption(Review.EASY, selectedOption, onOptionSelected)
+        DifficultyOption(Review.MEDIUM, selectedOption, onOptionSelected)
+        DifficultyOption(Review.HARD, selectedOption, onOptionSelected)
     }
 }
 
 @Composable
-fun DifficultyOption(option: String, selectedOption: String, onOptionSelected: (String) -> Unit) {
+fun DifficultyOption(option: Review, selectedOption: Review, onOptionSelected: (Review) -> Unit) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.padding(horizontal = 8.dp)
@@ -226,7 +265,7 @@ fun DifficultyOption(option: String, selectedOption: String, onOptionSelected: (
             )
         }
         Text(
-            text = option,
+            text = option.name,
             modifier = Modifier.padding(start = 8.dp),
             color = if (option == selectedOption) Color.White else Color.Gray
         )
