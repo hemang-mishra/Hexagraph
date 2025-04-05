@@ -46,4 +46,35 @@ object Utils {
 
     fun timestamp(pattern: String = "yyyy-MM-dd HH:mm:ss", date: Date = Date()): String = SimpleDateFormat(pattern, Locale.getDefault()).format(date)
 
+    fun separateQuestions(prompt: String, easyCount: Int, mediumCount: Int, hardCount: Int): Triple<List<String>, List<String>, List<String>> {
+        val easyQuestions = mutableListOf<String>()
+        val mediumQuestions = mutableListOf<String>()
+        val hardQuestions = mutableListOf<String>()
+
+        val regex = Regex("""@\{(.*?)\}@""")
+        val matches = regex.findAll(prompt).map { it.groupValues[1] }.toList()
+
+        var easyIndex = 0
+        var mediumIndex = 0
+        var hardIndex = 0
+
+        for (question in matches) {
+            when {
+                easyIndex < easyCount -> {
+                    easyQuestions.add(question)
+                    easyIndex++
+                }
+                mediumIndex < mediumCount -> {
+                    mediumQuestions.add(question)
+                    mediumIndex++
+                }
+                hardIndex < hardCount -> {
+                    hardQuestions.add(question)
+                    hardIndex++
+                }
+            }
+        }
+
+        return Triple(easyQuestions, mediumQuestions, hardQuestions)
+    }
 }

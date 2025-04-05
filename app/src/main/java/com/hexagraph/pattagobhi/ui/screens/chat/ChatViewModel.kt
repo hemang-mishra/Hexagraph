@@ -22,7 +22,7 @@ class ChatViewModel @Inject constructor() : BaseViewModel<ChatUIState>() {
     private val geminiService: GeminiService = GeminiService()
     fun sendPrompt(
         prompt: String,
-        basePrompts: GeminiPrompts = GeminiPrompts.DEFAULT
+        basePrompts: String = GeminiPrompts.defaultPrompt()
     ) {
 //        data.value = GeminiData()
 //        _uiState.value = GeminiUiState.Loading
@@ -32,7 +32,7 @@ class ChatViewModel @Inject constructor() : BaseViewModel<ChatUIState>() {
             chatUIStateFlow.emit(chatUIStateFlow.value.copy(isLoading = true,
                 currentInteraction = BotUiState.GEMINI))
             try {
-                val response = geminiService.generateContent(prompt = basePrompts.prompt+prompt)
+                val response = geminiService.generateContent(prompt = basePrompts+prompt)
                 response?.let { outputContent ->
                     addHistory(
                         BotComponent.GeminiResponseState(
@@ -59,7 +59,7 @@ class ChatViewModel @Inject constructor() : BaseViewModel<ChatUIState>() {
     }
 
     fun onClick(snackbarHostState: SnackbarHostState, prompt: String){
-        sendPrompt(prompt, GeminiPrompts.DEFAULT)
+        sendPrompt(prompt)
     }
 
     fun changeScrollState(isScrollEnabled: Boolean) {

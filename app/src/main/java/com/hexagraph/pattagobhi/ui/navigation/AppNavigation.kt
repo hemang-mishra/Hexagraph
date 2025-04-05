@@ -19,6 +19,7 @@ import com.hexagraph.pattagobhi.ui.screens.authentication.emailVerification.LogI
 import com.hexagraph.pattagobhi.ui.screens.authentication.emailVerification.VerifyEmail
 import com.hexagraph.pattagobhi.ui.screens.authentication.login.LogInScreen
 import com.hexagraph.pattagobhi.ui.screens.authentication.login.LoginViewModel
+import com.hexagraph.pattagobhi.ui.screens.cardgeneration.MainCardGenerationScreen
 import com.hexagraph.pattagobhi.ui.screens.chat.BotScreen
 import com.hexagraph.pattagobhi.ui.screens.home.HomeScreen
 import com.hexagraph.pattagobhi.ui.screens.onboarding.OnBoardingScreen
@@ -45,7 +46,7 @@ fun AppNavigation(
              else Screens.NavOnboardingScreen
     ){
         composable<Screens.NavHomeRoute> {
-            BotScreen(navController)
+            MainCardGenerationScreen(snackbarHostState = snackbarHostState)
         }
         composable<Screens.NavPermissionsScreen> {
             PermissionScreen(viewModel = onboardingViewModel, navController)
