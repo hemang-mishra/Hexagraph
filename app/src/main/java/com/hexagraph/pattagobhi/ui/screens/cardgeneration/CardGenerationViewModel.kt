@@ -266,20 +266,20 @@ class CardGenerationViewModel @Inject constructor(
         return formatTime(calculateHalfLife(numberOfPreviousReview + 1, difficulty))
     }
 
-    fun addCard(idx: Int, card: Card) {
+    fun addCard(idx: Int, card: Card, cardIdx: Int) {
         val cardRecords: MutableList<String> = card.reviewRecord.toMutableList()
         var nextReview = ""
         if (idx == 2) {
             nextReview = getNextReviewTime(card.reviewRecord.size, 0.2)
-            card.review  = Review.EASY
+            card.review = Review.EASY
         }
         if (idx == 1) {
             nextReview = getNextReviewTime(card.reviewRecord.size, 0.6)
-            card.review  = Review.MEDIUM
+            card.review = Review.MEDIUM
         }
         if (idx == 0) {
             nextReview = getNextReviewTime(card.reviewRecord.size, 0.9)
-            card.review  = Review.HARD
+            card.review = Review.HARD
 
         }
         cardRecords.add(getCurrentTime())
@@ -290,6 +290,7 @@ class CardGenerationViewModel @Inject constructor(
                     nextReview = nextReview
                 )
             )
+            goToAParticularCard(cardIdx + 1)
         }
     }
 }

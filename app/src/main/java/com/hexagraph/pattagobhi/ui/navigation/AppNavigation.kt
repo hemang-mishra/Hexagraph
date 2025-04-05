@@ -111,7 +111,10 @@ fun AppNavigation(
             val topicInputScreenArg = it.toRoute<AuthenticationNavigation.TopicInputScreen>()
             MainCardGenerationScreen(
                 snackbarHostState = snackbarHostState,
-                deckId = topicInputScreenArg.deckID
+                deckId = topicInputScreenArg.deckID,
+                goToHomeScreen = {
+                    navController.navigate(Screens.NavHomeRoute)
+                }
             )
         }
         composable<AuthenticationNavigation.AddCardScreen> { backStackEntry ->

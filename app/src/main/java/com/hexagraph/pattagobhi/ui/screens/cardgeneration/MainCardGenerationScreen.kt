@@ -25,7 +25,8 @@ import com.hexagraph.pattagobhi.ui.screens.chat.BotScreen
 fun MainCardGenerationScreen(
     viewModel: CardGenerationViewModel = hiltViewModel(),
     deckId: Int? = null,
-    snackbarHostState: SnackbarHostState
+    snackbarHostState: SnackbarHostState,
+    goToHomeScreen:()->Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -60,7 +61,7 @@ fun MainCardGenerationScreen(
                 }
 
                 CurrentScreen.ReviewScreen -> {
-                    ReviewScreen(viewModel)
+                    ReviewScreen(viewModel,goToHomeScreen)
                 }
 
                 CurrentScreen.ChatScreen -> {
