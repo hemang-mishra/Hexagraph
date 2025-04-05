@@ -15,6 +15,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -34,7 +36,7 @@ fun NextImageButton(modifier: Modifier, smallSize: Int = 50, largeSize: Int = 71
     }
 
     Image(
-        painter = painterResource(id = R.drawable.nextbutton),
+        painter = painterResource(id = R.drawable.img_1),
         contentDescription = "image description",
         contentScale = ContentScale.None,
         modifier = modifier

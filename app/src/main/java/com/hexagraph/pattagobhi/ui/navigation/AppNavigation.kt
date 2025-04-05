@@ -47,7 +47,8 @@ fun AppNavigation(
         } else Screens.NavOnboardingScreen
     ) {
         composable<Screens.NavHomeRoute> {
-            DeckScreen(onDeckClicked = { deckId, name ->
+            DeckScreen(
+                onDeckClicked = { deckId, name ->
                 navController.navigate(AuthenticationNavigation.CardScreen(deckId, name))
             }, onGenerateButtonClicked = {
                 navController.navigate(AuthenticationNavigation.TopicInputScreen())

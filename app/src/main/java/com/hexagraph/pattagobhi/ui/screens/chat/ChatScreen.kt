@@ -73,7 +73,7 @@ fun BotScreen(
             SnackbarHost(hostState = snackbarHostState)
         },
         modifier = Modifier
-            .background(color = Color(0xFF7788F4))
+            .background(color = Color(0xFF0F0F0F))
             .navigationBarsPadding()
             .statusBarsPadding()
     ) { paddingValues ->
@@ -81,7 +81,7 @@ fun BotScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(color = Color(0xFF7788F4))
+                .background(color = Color(0xFF0F0F0F))
         ) {
             Icon(
                 imageVector = Icons.Default.Close, tint = Color.White, contentDescription = null,
