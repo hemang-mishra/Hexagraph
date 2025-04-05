@@ -6,5 +6,6 @@ enum class EnumClasses {
 enum class Review{
     EASY,
     MEDIUM,
-    HARD
+    HARD,
+    NOT_REVIEWED
 }

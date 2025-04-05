@@ -91,14 +91,22 @@ fun AppNavigation(
         composable<AuthenticationNavigation.CardScreen> { backStackEntry ->
             val deckId = backStackEntry.arguments?.getInt("deckId")
             val name = backStackEntry.arguments?.getString("name")
-//            CardScreen(deckId = deckId!!, name = name!!)
-            AddCardScreen(onAddCard = { _, _ ->
-
-            }, deckId = deckId!!)
+            CardScreen(deckId = deckId!!, name = name!!, onAddCardClicked = { deckId ->
+                navController.navigate(AuthenticationNavigation.AddCardScreen(deckId = deckId))
+            })
+//            AddCardScreen(onAddCard = { _, _ ->
+//
+//            }, deckId = deckId!!)
         }
         composable<AuthenticationNavigation.TopicInputScreen> {
             val topicInputScreenArg = it.toRoute<AuthenticationNavigation.TopicInputScreen>()
             MainCardGenerationScreen(snackbarHostState = snackbarHostState, deckId = topicInputScreenArg.deckID)
+        }
+        composable<AuthenticationNavigation.AddCardScreen> { backStackEntry ->
+            val deckId = backStackEntry.arguments?.getInt("deckId")
+            AddCardScreen(deckId!!, onCardAdded = {
+                navController.navigateUp()
+            })
         }
     }
 }

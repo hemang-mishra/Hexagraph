@@ -31,7 +31,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.hexagraph.pattagobhi.util.Review
 
 @Composable
-fun CardScreen(deckId: Int, name: String, viewModel: CardScreenViewModel = hiltViewModel()) {
+fun CardScreen(deckId: Int, name: String, viewModel: CardScreenViewModel = hiltViewModel(), onAddCardClicked:(Int)->Unit) {
 
     Scaffold { innerPadding ->
         LaunchedEffect(Unit) {
@@ -49,17 +49,29 @@ fun CardScreen(deckId: Int, name: String, viewModel: CardScreenViewModel = hiltV
         if (starterScreen.value)
             Box {
                 DeckStatsScreen(name, easy, medium, hard, 0, size)
-                Button(
-                    onClick = {
-                        starterScreen.value = false
-                    },
-                    modifier = Modifier
-                        .align(Alignment.BottomCenter)
-                        .padding(bottom = 16.dp)
-                        .width(150.dp)
-                ) {
-                    Text("Study")
+                Row(modifier = Modifier.align(Alignment.BottomCenter)) {
+                    Button(
+                        onClick = {
+                            starterScreen.value = false
+                        },
+                        modifier = Modifier
+                            .padding(bottom = 16.dp)
+                            .width(100.dp)
+                    ) {
+                        Text("Study")
+                    }
+                    Button(
+                        onClick = {
+                            onAddCardClicked(deckId)
+                        },
+                        modifier = Modifier
+                            .padding(bottom = 16.dp)
+                            .width(100.dp)
+                    ) {
+                        Text("Add")
+                    }
                 }
+
             }else{
             LazyColumn(modifier = Modifier.padding(innerPadding)) {
                 item {
