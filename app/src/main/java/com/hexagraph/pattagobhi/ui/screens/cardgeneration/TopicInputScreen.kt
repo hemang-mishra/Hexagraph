@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.sp
 import com.hexagraph.pattagobhi.ui.components.AppButton
 import com.hexagraph.pattagobhi.ui.components.AppTextField
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.hilt.navigation.compose.hiltViewModel
 
 @Composable
 fun TopicInputScreen(

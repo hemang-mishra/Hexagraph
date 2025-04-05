@@ -6,6 +6,7 @@ import com.hexagraph.pattagobhi.model.ResponseError
 import com.hexagraph.pattagobhi.service.GeminiService
 import com.hexagraph.pattagobhi.ui.screens.chat.GeminiPrompts
 import com.hexagraph.pattagobhi.ui.screens.onboarding.BaseViewModel
+import com.hexagraph.pattagobhi.util.Review
 import com.hexagraph.pattagobhi.util.Utils.separateQuestions
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
@@ -84,7 +85,6 @@ class CardGenerationViewModel @Inject constructor() :
                                 deckId = createGenerationUIStateFlow.value.cardGenerationUIStateForUI.deckId,
                                 question = question,
                                 answer = response,
-                                review = ""
                             )
                         } else {
                             null
@@ -105,7 +105,6 @@ class CardGenerationViewModel @Inject constructor() :
                                 deckId = createGenerationUIStateFlow.value.cardGenerationUIStateForUI.deckId,
                                 question = question,
                                 answer = response,
-                                review = ""
                             )
                         } else {
                             null
@@ -126,7 +125,6 @@ class CardGenerationViewModel @Inject constructor() :
                                 deckId = createGenerationUIStateFlow.value.cardGenerationUIStateForUI.deckId,
                                 question = question,
                                 answer = response,
-                                review = ""
                             )
                         } else {
                             null
@@ -178,7 +176,7 @@ class CardGenerationViewModel @Inject constructor() :
             uiStateForUIFlow,
             errorFlow,
             successMsgFlow
-        ) { stateFlow, uiStateForUI, error, msg->
+        ) { stateFlow, uiStateForUI, error, msg ->
             stateFlow.copy(
                 cardGenerationUIStateForUI = uiStateForUI,
                 errorMessage = error?.genericToast,
