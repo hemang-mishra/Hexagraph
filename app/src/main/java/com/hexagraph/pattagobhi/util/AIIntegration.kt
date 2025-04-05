@@ -17,6 +17,7 @@ import kotlin.math.sqrt
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.pow
+import kotlin.math.roundToInt
 
 object AIIntegration {
     private const val FACE_NET_MODEL_PATH = "face_net_512.tflite"
@@ -164,4 +165,31 @@ fun getNextReviewTime(nReviews: Int, difficulty: Double): String {
     val nextReviewTime = currentTime.plusSeconds(halfLifeSeconds)
     val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
     return nextReviewTime.format(formatter)
+}
+
+fun formatTime(seconds: Double): String {
+    return when {
+        seconds < 60 -> {
+            // Less than 60 seconds: show in seconds.
+            "$seconds second${if (seconds != 1.0) "s" else ""}"
+        }
+        seconds < 3600 -> {
+            // Less than 3600 seconds (1 hour): convert to minutes.
+            // Rounding to nearest minute.
+            val minutes = (seconds / 60.0).roundToInt()
+            "$minutes minute${if (minutes != 1) "s" else ""}"
+        }
+        seconds < 86400 -> {
+            // Less than 86400 seconds (1 day): convert to hours.
+            // Rounding to nearest hour.
+            val hours = (seconds / 3600.0).roundToInt()
+            "$hours hour${if (hours != 1) "s" else ""}"
+        }
+        else -> {
+            // One day or more: convert to days.
+            // Rounding to nearest day.
+            val days = (seconds / 86400.0).roundToInt()
+            "$days day${if (days != 1) "s" else ""}"
+        }
+    }
 }
