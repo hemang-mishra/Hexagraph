@@ -31,7 +31,7 @@ import javax.inject.Inject
 @HiltViewModel
 class CardGenerationViewModel @Inject constructor(
     private val deckDao: DeckDao,
-    private val deckRepository: DeckRepository
+    private val deckRepository: DeckRepository,
 ) :
     BaseViewModel<CardGenerationUIState>() {
 
@@ -47,6 +47,28 @@ class CardGenerationViewModel @Inject constructor(
                     deck = deckId
                 )
             )
+        }
+    }
+
+    fun generateFeedback() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val uiState = createGenerationUIStateFlow.value
+            val it = createGenerationUIStateFlow.value.reviewScreenUIState.currentIndex
+            val card = uiState.easyCards.getOrNull(it)
+                ?: uiState.mediumCards.getOrNull(it - uiState.easyCards.size)
+                ?: uiState.hardCards.getOrNull(it - uiState.easyCards.size - uiState.mediumCards.size)
+            val prompt = GeminiPrompts.feedbackOnResponse(
+                question = card?.question ?: "",
+                answer = card?.answer ?: "", response = uiState.reviewScreenUIState.voiceText ?: ""
+            )
+            val response = geminiService.generateContent(prompt = prompt)
+            if (response != null) {
+                reviewScreenStateFlow.emit(
+                    reviewScreenStateFlow.value.copy(feedbackText = response)
+                )
+            } else {
+                emitError(ResponseError.UNKNOWN)
+            }
         }
     }
 
@@ -246,7 +268,8 @@ class CardGenerationViewModel @Inject constructor(
                     )
                 )
                 uiStateForUIFlow.emit(
-                    uiStateForUIFlow.value.copy(deck = listOfDecks.first().find { it.id == deckId }?:Deck())
+                    uiStateForUIFlow.value.copy(deck = listOfDecks.first().find { it.id == deckId }
+                        ?: Deck())
                 )
             }
         }

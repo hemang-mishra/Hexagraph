@@ -4,7 +4,6 @@ package com.hexagraph.pattagobhi.ui.screens.cardgeneration
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.content.res.Configuration
 import android.os.Bundle
 import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
@@ -20,8 +19,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.VerticalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
@@ -31,45 +28,46 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.VolumeOff
 import androidx.compose.material.icons.automirrored.filled.VolumeUp
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Mic
-import androidx.compose.material.icons.filled.VolumeOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import com.hexagraph.pattagobhi.Entity.Card
 import com.hexagraph.pattagobhi.R
-import com.hexagraph.pattagobhi.ui.theme.HexagraphTheme
 import com.hexagraph.pattagobhi.util.Review
 import java.util.Locale
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ReviewScreen(viewModel: CardGenerationViewModel, goToHomeScreen: () -> Unit) {
     val uiState by viewModel.uiState.collectAsState()
+    var isReviewBottomSheetVisible by rememberSaveable { mutableStateOf(false) }
+    val sheetState = rememberModalBottomSheetState()
 
     ReviewScreenBase(
         uiState = uiState,
@@ -93,9 +91,23 @@ fun ReviewScreen(viewModel: CardGenerationViewModel, goToHomeScreen: () -> Unit)
         goToIndex = { index ->
             viewModel.goToAParticularCard(index)
         },
-        viewModel,
-        goToHomeScreen
+        onSpeechEnd = {
+            viewModel.generateFeedback()
+            isReviewBottomSheetVisible = true
+        },
+        viewModel = viewModel,
+        goToHomeScreen = goToHomeScreen
     )
+
+    if(isReviewBottomSheetVisible){
+        FeedbackBottomSheet(
+            sheetState = sheetState,
+            response = uiState.reviewScreenUIState.feedbackText,
+            onDismissRequest = {
+                isReviewBottomSheetVisible = false
+            }
+        )
+    }
 
 }
 
@@ -105,6 +117,7 @@ fun ReviewScreenBase(
     onMenuClick: () -> Unit,
     onBackClick: () -> Unit,
     onMuteClick: () -> Unit,
+    onSpeechEnd: () -> Unit,
     onMicClick: () -> Unit,
     onCloseClick: () -> Unit,
     onHelpClick: () -> Unit,
@@ -165,6 +178,7 @@ fun ReviewScreenBase(
                             shouldShowAnswer = if (uiState.reviewScreenUIState.currentState == CurrentStateOfReviewScreen.AnswerIsDisplayed ||
                                 uiState.reviewScreenUIState.currentState == CurrentStateOfReviewScreen.AnswerIsDisplayedWithFeedback
                             ) true else false,
+                            onSpeechTextEnd = onSpeechEnd
                         )
                         if (uiState.reviewScreenUIState.currentState == CurrentStateOfReviewScreen.OnlyQuestionDisplayed)
                             BottomBarSection(
@@ -318,6 +332,7 @@ fun MainCardSection(
     answerText: String,
     feedbackText: String,
     voiceText: String?,
+    onSpeechTextEnd: () -> Unit,
     onHelpClick: () -> Unit,
     onMicClick: () -> Unit,
     shouldShowAnswer: Boolean,
@@ -397,13 +412,16 @@ fun MainCardSection(
             // Mic/Play Icon at Bottom Center
             RecordVoice(onSpeechTextChanged = {
                 speechText = it
-            })
+            },
+                onSpeechEnd = {
+                    onSpeechTextEnd()
+                })
         }
     }
 }
 
 @Composable
-fun RecordVoice(onSpeechTextChanged: (String) -> Unit) {
+fun RecordVoice(onSpeechTextChanged: (String) -> Unit, onSpeechEnd: ()->Unit) {
     RequestAudioPermission()
     var isListening by remember { mutableStateOf(false) }
 
@@ -431,6 +449,7 @@ fun RecordVoice(onSpeechTextChanged: (String) -> Unit) {
 
         override fun onEndOfSpeech() {
             isListening = false
+            onSpeechEnd()
         }
 
         override fun onError(error: Int) {
