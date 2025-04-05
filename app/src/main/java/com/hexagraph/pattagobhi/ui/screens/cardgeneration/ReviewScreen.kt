@@ -1,7 +1,21 @@
 package com.hexagraph.pattagobhi.ui.screens.cardgeneration
 
 
+import android.Manifest
+import android.content.Intent
+import android.content.pm.PackageManager
 import android.content.res.Configuration
+import android.os.Bundle
+import android.speech.RecognitionListener
+import android.speech.RecognizerIntent
+import android.speech.SpeechRecognizer
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -37,6 +51,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -45,10 +60,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import com.hexagraph.pattagobhi.Entity.Card
 import com.hexagraph.pattagobhi.R
 import com.hexagraph.pattagobhi.ui.theme.HexagraphTheme
 import com.hexagraph.pattagobhi.util.Review
+import java.util.Locale
 
 @Composable
 fun ReviewScreen(viewModel: CardGenerationViewModel, goToHomeScreen: () -> Unit) {
@@ -311,6 +328,8 @@ fun MainCardSection(
     iconSize: Dp = 48.dp,
     questionTextStyle: TextStyle = MaterialTheme.typography.titleMedium,
 ) {
+    var speechText by remember { mutableStateOf("Your speech will appear here") }
+
     Card(
         modifier = modifier
             .fillMaxWidth()
@@ -368,30 +387,142 @@ fun MainCardSection(
                         color = MaterialTheme.colorScheme.onPrimaryContainer
                     )
                 }
-                if (voiceText != null) {
-                    Text(
-                        text = voiceText,
-                        style = questionTextStyle,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
-                    )
-                }
+                Text(
+                    text = speechText,
+                    style = questionTextStyle,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                )
             }
 
             // Mic/Play Icon at Bottom Center
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(bottom = 16.dp),
-                contentAlignment = Alignment.BottomCenter
-            ) {
-                IconButton(onClick = onMicClick) {
-                    Icon(
-                        imageVector = Icons.Default.Mic,
-                        contentDescription = "Play or Mic",
-                        tint = iconTint,
-                        modifier = Modifier.size(iconSize)
-                    )
-                }
+            RecordVoice(onSpeechTextChanged = {
+                speechText = it
+            })
+        }
+    }
+}
+
+@Composable
+fun RecordVoice(onSpeechTextChanged: (String) -> Unit) {
+    RequestAudioPermission()
+    var isListening by remember { mutableStateOf(false) }
+
+    val context = LocalContext.current
+    val speechRecognizer = remember { SpeechRecognizer.createSpeechRecognizer(context) }
+    val animationScale = remember { Animatable(1f) }
+
+    val speechRecognizerIntent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+        putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+        putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault())
+    }
+
+    val recognitionListener = object : RecognitionListener {
+        override fun onReadyForSpeech(params: Bundle?) {
+            isListening = true
+        }
+
+        override fun onBeginningOfSpeech() {
+
+        }
+
+        override fun onRmsChanged(rmsdB: Float) {}
+
+        override fun onBufferReceived(buffer: ByteArray?) {}
+
+        override fun onEndOfSpeech() {
+            isListening = false
+        }
+
+        override fun onError(error: Int) {
+            isListening = false
+            if (error == 7) onSpeechTextChanged("Click on mic to speak")
+            else onSpeechTextChanged("Something unexpected occurred")
+        }
+
+        override fun onResults(results: Bundle?) {
+            isListening = false
+            val matches = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
+            if (!matches.isNullOrEmpty()) {
+                onSpeechTextChanged(matches[0])
+            }
+        }
+
+        override fun onPartialResults(partialResults: Bundle?) {
+            val matches = partialResults?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
+            if (!matches.isNullOrEmpty()) {
+                onSpeechTextChanged(matches[0])
+            }
+        }
+
+        override fun onEvent(eventType: Int, params: Bundle?) {}
+    }
+
+    speechRecognizer.setRecognitionListener(recognitionListener)
+
+    LaunchedEffect(isListening) {
+        if (isListening) {
+            animationScale.animateTo(
+                targetValue = 1.5f,
+                animationSpec = infiniteRepeatable(
+                    animation = tween(500),
+                    repeatMode = RepeatMode.Reverse
+                )
+            )
+        } else {
+            animationScale.snapTo(1f)
+        }
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(bottom = 16.dp),
+        contentAlignment = Alignment.BottomCenter
+    ) {
+        IconButton(onClick = {
+            if (isListening) {
+                speechRecognizer.stopListening()
+            } else {
+                speechRecognizer.startListening(speechRecognizerIntent)
+            }
+        }) {
+            Icon(
+                imageVector = Icons.Default.Mic,
+                contentDescription = "Play or Mic",
+                modifier = Modifier.size(100.dp),
+                tint = if (isListening) Color.Red else Color.Gray
+            )
+        }
+    }
+}
+
+@Composable
+fun RequestAudioPermission() {
+    val context = LocalContext.current
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+        onResult = { isGranted ->
+            if (!isGranted) {
+                Toast.makeText(
+                    context,
+                    "Audio permission is required to use speech recognition",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        }
+    )
+
+    LaunchedEffect(Unit) {
+        when {
+            ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.RECORD_AUDIO
+            ) == PackageManager.PERMISSION_GRANTED -> {
+                // Permission granted
+            }
+
+            else -> {
+                permissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
             }
         }
     }
