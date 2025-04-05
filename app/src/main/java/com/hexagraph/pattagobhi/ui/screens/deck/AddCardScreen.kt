@@ -2,6 +2,8 @@ package com.hexagraph.pattagobhi.ui.screens.deck
 
 import android.util.Log
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -12,16 +14,25 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ChevronLeft
+import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.FolderOpen
+import androidx.compose.material.icons.filled.RemoveRedEye
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.RadioButtonDefaults
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -38,6 +49,7 @@ import com.hexagraph.pattagobhi.Entity.Card
 import com.hexagraph.pattagobhi.util.getCurrentTime
 import dev.jeziellago.compose.markdowntext.MarkdownText
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddCardScreen(
     deckId: Int,
@@ -48,111 +60,175 @@ fun AddCardScreen(
     var answer by remember { mutableStateOf("") }
     var markDownPreview by remember { mutableStateOf(false) }
     Log.d("MarkDown", answer)
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.Black)
-            .padding(16.dp)
-    ) {
-        Spacer(modifier = Modifier.height(16.dp))
-        // Question Label
-        Text("Question", color = Color.White)
-
-        // Question TextField
-        if (markDownPreview)
-            MarkdownText(
-                question.trimIndent(),
-                modifier = Modifier.fillMaxWidth(),
-                style = TextStyle(color = Color.White)
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Add Card")},
+                navigationIcon = {
+                    IconButton(onClick = { /* TODO: Open Drawer */ }) {
+                        Icon(Icons.Default.ChevronLeft, contentDescription = "Menu")
+                    }
+                },
+                actions = {
+                    IconButton(onClick = { /* TODO: Rename */ }) {
+                        Icon(Icons.Default.RemoveRedEye, contentDescription = "Rename")
+                    }
+                    IconButton(onClick = { /* TODO: Delete */ }) {
+                        Icon(Icons.Default.DeleteOutline, contentDescription = "Delete")
+                    }
+                }
             )
-        else
-            OutlinedTextField(
-                value = question,
-                onValueChange = { question = it },
+        }
+    ){
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 16.dp)
+                .background(Color.Black)
+                .padding(it)
+        ) {
+            Spacer(modifier = Modifier.height(16.dp))
+            // Question Label
+            Text("Question", color = Color.White)
+
+            // Question TextField
+            if (markDownPreview)
+                MarkdownText(
+                    question.trimIndent(),
+                    modifier = Modifier.fillMaxWidth(),
+                    style = TextStyle(color = Color.White)
+                )
+            else
+                OutlinedTextField(
+                    value = question,
+                    onValueChange = { question = it },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = Color.White,
+                        unfocusedBorderColor = Color.Gray,
+                        cursorColor = Color.White,
+                        focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.White,
+                        focusedContainerColor = Color(0xFF1E1E1E),
+                        unfocusedContainerColor = Color(0xFF1E1E1E),
+                    ),
+                    shape = RoundedCornerShape(12.dp)
+
+                )
+
+            HorizontalDivider(thickness = 1.dp, color = Color.Gray, modifier = Modifier.padding(top=20.dp))
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 8.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = Color.White,
-                    unfocusedBorderColor = Color.Gray,
-                    cursorColor = Color.White,
-                    focusedTextColor = Color.White,
-                    unfocusedTextColor = Color.White,
-                    focusedContainerColor = Color(0xFF1E1E1E),
-                    unfocusedContainerColor = Color(0xFF1E1E1E),
+                    .padding(top = 16.dp)
+            ) {
+                Text("Answer", color = Color.White, modifier = Modifier.weight(1f))
+                IconButton(onClick = { markDownPreview = !markDownPreview }) {
+                    if (markDownPreview)
+                        Icon(Icons.Default.Edit, contentDescription = "Edit", tint = Color.White)
+                    else Icon(Icons.Default.FolderOpen, contentDescription = null, tint = Color.White)
+                }
+            }
+
+            // Answer TextField (multi-line)
+            if (markDownPreview)
+                MarkdownText(
+                    answer.trimIndent(),
+                    modifier = Modifier.fillMaxWidth(),
+                    style = TextStyle(color = Color.White)
+                )
+            else
+                OutlinedTextField(
+                    value = answer,
+                    onValueChange = { answer = it },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .fillMaxHeight(0.6f),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = Color.White,
+                        unfocusedBorderColor = Color.Gray,
+                        cursorColor = Color.White,
+                        focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.White,
+                        focusedContainerColor = Color(0xFF1E1E1E),
+                        unfocusedContainerColor = Color(0xFF1E1E1E)
+                    ),
+                    maxLines = 10,
+                    shape = RoundedCornerShape(12.dp)
+                )
+            if(!markDownPreview)
+            DifficultySelector(Modifier.padding(top = 12.dp))
+            Spacer(modifier = Modifier.weight(1f))
+
+            // Add to Deck Button
+            Button(
+                onClick = {
+                    cardScreenViewModel.addCard(
+                        Card(
+                            deckId = deckId,
+                            question = question,
+                            answer = answer,
+                            nextReview = getCurrentTime()
+                        )
+                    )
+                    onCardAdded()
+                },
+                modifier = Modifier
+                    .fillMaxWidth(0.9f)
+                    .padding(bottom = 32.dp)
+                    .align(Alignment.CenterHorizontally),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF3C4F35), // olive greenish
+                    contentColor = Color.White
                 ),
-                shape = RoundedCornerShape(12.dp)
-
-            )
-
-        Divider(color = Color.Gray, thickness = 1.dp)
-
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 16.dp)
-        ) {
-            Text("Answer", color = Color.White, modifier = Modifier.weight(1f))
-            IconButton(onClick = { markDownPreview = !markDownPreview }) {
-                if (markDownPreview)
-                    Icon(Icons.Default.Edit, contentDescription = "Edit", tint = Color.White)
-                else Icon(Icons.Default.FolderOpen, contentDescription = null, tint = Color.White)
+                shape = RoundedCornerShape(50)
+            ) {
+                Text("Add to Deck")
             }
         }
+    }
 
-        // Answer TextField (multi-line)
-        if (markDownPreview)
-            MarkdownText(
-                answer.trimIndent(),
-                modifier = Modifier.fillMaxWidth(),
-                style = TextStyle(color = Color.White)
-            )
-        else
-            OutlinedTextField(
-                value = answer,
-                onValueChange = { answer = it },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .fillMaxHeight(0.8f),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = Color.White,
-                    unfocusedBorderColor = Color.Gray,
-                    cursorColor = Color.White,
-                    focusedTextColor = Color.White,
-                    unfocusedTextColor = Color.White,
-                    focusedContainerColor = Color(0xFF1E1E1E),
-                    unfocusedContainerColor = Color(0xFF1E1E1E)
-                ),
-                maxLines = 10,
-                shape = RoundedCornerShape(12.dp)
-            )
+}
 
-        Spacer(modifier = Modifier.weight(1f))
+@Composable
+fun DifficultySelector(modifier: Modifier = Modifier) {
+    val (selectedOption, onOptionSelected) = remember { mutableStateOf("Easy") }
 
-        // Add to Deck Button
-        Button(
-            onClick = {
-                cardScreenViewModel.addCard(
-                    Card(
-                        deckId = deckId,
-                        question = question,
-                        answer = answer,
-                        nextReview = getCurrentTime()
-                    )
-                )
-                onCardAdded()
-            },
+    Row(modifier = modifier.fillMaxWidth()) {
+        DifficultyOption("Easy", selectedOption, onOptionSelected)
+        DifficultyOption("Medium", selectedOption, onOptionSelected)
+        DifficultyOption("Hard", selectedOption, onOptionSelected)
+    }
+}
+
+@Composable
+fun DifficultyOption(option: String, selectedOption: String, onOptionSelected: (String) -> Unit) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.padding(horizontal = 8.dp)
+    ) {
+        Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 16.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFF3C4F35), // olive greenish
-                contentColor = Color.White
-            ),
-            shape = RoundedCornerShape(50)
+                .padding(8.dp) // Increase the clickable area
+                .clickable { onOptionSelected(option) }
         ) {
-            Text("Add to Deck")
+            RadioButton(
+                selected = (option == selectedOption),
+                onClick = null, // Handled by the Box
+                colors = RadioButtonDefaults.colors(
+                    selectedColor = Color.White,
+                    unselectedColor = Color.Gray
+                )
+            )
         }
+        Text(
+            text = option,
+            modifier = Modifier.padding(start = 8.dp),
+            color = if (option == selectedOption) Color.White else Color.Gray
+        )
     }
 }
