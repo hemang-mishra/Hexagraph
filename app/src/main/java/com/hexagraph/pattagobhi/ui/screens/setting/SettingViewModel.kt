@@ -12,23 +12,23 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.last
 import kotlinx.coroutines.launch
 
-@HiltViewModel
-class SettingViewModel @Inject constructor(val backupRepository: FirebaseBackupRepository, val deckRepository: DeckRepository):ViewModel() {
-val status = mutableStateOf(Status.NOT_STARTED)
-    fun backUp(){
-        viewModelScope.launch {
-            val decks = deckRepository.getAllDeck().last()
-            decks.forEach { deck->
-                backupRepository.backupDeck(deck){success, error->
-                    if(success){
-
-                    }
-                    else{
-                        return@backupDeck
-                    }
-
-                }
-            }
-        }
-    }
-}
+//@HiltViewModel
+//class SettingViewModel @Inject constructor(val backupRepository: FirebaseBackupRepository, val deckRepository: DeckRepository):ViewModel() {
+//val status = mutableStateOf(Status.NOT_STARTED)
+//    fun backUp(){
+//        viewModelScope.launch {
+//            val decks = deckRepository.getAllDeck().last()
+//            decks.forEach { deck->
+//                backupRepository.backupDeck(deck){success, error->
+//                    if(success){
+//
+//                    }
+//                    else{
+//                        return@backupDeck
+//                    }
+//
+//                }
+//            }
+//        }
+//    }
+//}

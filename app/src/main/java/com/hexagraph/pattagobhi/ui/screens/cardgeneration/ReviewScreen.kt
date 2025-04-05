@@ -4,6 +4,7 @@ package com.hexagraph.pattagobhi.ui.screens.cardgeneration
 import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -47,6 +48,7 @@ import androidx.compose.ui.unit.sp
 import com.hexagraph.pattagobhi.Entity.Card
 import com.hexagraph.pattagobhi.R
 import com.hexagraph.pattagobhi.ui.theme.HexagraphTheme
+import com.hexagraph.pattagobhi.util.Review
 
 @Composable
 fun ReviewScreen(viewModel: CardGenerationViewModel) {
@@ -56,14 +58,14 @@ fun ReviewScreen(viewModel: CardGenerationViewModel) {
         uiState = uiState,
         onMenuClick = {},
         onBackClick = {
-            viewModel.goToAParticularCard(uiState.reviewScreenUIState.currentIndex-1)
-                      },
+            viewModel.goToAParticularCard(uiState.reviewScreenUIState.currentIndex - 1)
+        },
         onMuteClick = {
             viewModel.toggleSpeakerState(!uiState.reviewScreenUIState.isTextToSpeechActive)
         },
         onMicClick = {},
         onCloseClick = {
-            viewModel.goToAParticularCard(uiState.reviewScreenUIState.currentIndex+1)
+            viewModel.goToAParticularCard(uiState.reviewScreenUIState.currentIndex + 1)
         },
         onHelpClick = {
             viewModel.switchScreen(CurrentScreen.ChatScreen)
@@ -73,35 +75,38 @@ fun ReviewScreen(viewModel: CardGenerationViewModel) {
         },
         goToIndex = { index ->
             viewModel.goToAParticularCard(index)
-        }
+        },
+        viewModel
     )
 
 }
 
 @Composable
-fun ReviewScreenBase(uiState: CardGenerationUIState,
-                     onMenuClick: () -> Unit,
-                     onBackClick: () -> Unit,
-                     onMuteClick: () -> Unit,
-                     onMicClick: () -> Unit,
-                     onCloseClick: () -> Unit,
-                     onHelpClick: () -> Unit,
-                     onShowAnswerClick: ()->Unit,
-                     goToIndex: (Int)-> Unit
-                     ){
+fun ReviewScreenBase(
+    uiState: CardGenerationUIState,
+    onMenuClick: () -> Unit,
+    onBackClick: () -> Unit,
+    onMuteClick: () -> Unit,
+    onMicClick: () -> Unit,
+    onCloseClick: () -> Unit,
+    onHelpClick: () -> Unit,
+    onShowAnswerClick: () -> Unit,
+    goToIndex: (Int) -> Unit,
+    viewModel: CardGenerationViewModel
+) {
     val verticalPager = rememberPagerState {
         uiState.easyCards.size + uiState.mediumCards.size + uiState.hardCards.size
     }
     var isScrolling = false
     LaunchedEffect(uiState.reviewScreenUIState.currentIndex) {
         isScrolling = true
-        if(verticalPager.currentPage != uiState.reviewScreenUIState.currentIndex){
+        if (verticalPager.currentPage != uiState.reviewScreenUIState.currentIndex) {
             verticalPager.scrollToPage(uiState.reviewScreenUIState.currentIndex)
         }
         isScrolling = false
     }
     LaunchedEffect(verticalPager.currentPage) {
-        if(verticalPager.currentPage != uiState.reviewScreenUIState.currentIndex)
+        if (verticalPager.currentPage != uiState.reviewScreenUIState.currentIndex)
             goToIndex(verticalPager.currentPage)
     }
     val currentScreenSize = getScreenHeightInDp()
@@ -110,20 +115,24 @@ fun ReviewScreenBase(uiState: CardGenerationUIState,
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
     ) {
-        TopHeaderSection(isSpeakerActive = uiState.reviewScreenUIState.isTextToSpeechActive,
-            onMenuClick,onBackClick,onMuteClick,onCloseClick)
+        TopHeaderSection(
+            isSpeakerActive = uiState.reviewScreenUIState.isTextToSpeechActive,
+            onMenuClick, onBackClick, onMuteClick, onCloseClick
+        )
         CardsLeftIndicator(
-            cardsLeftText = "${uiState.easyCards.size + uiState.mediumCards.size + uiState.hardCards.size-verticalPager.currentPage - 1} cards left",
+            cardsLeftText = "${uiState.easyCards.size + uiState.mediumCards.size + uiState.hardCards.size - verticalPager.currentPage - 1} cards left",
             modifier = Modifier.padding(16.dp)
         )
-        VerticalPager(state = verticalPager,
-            modifier = Modifier.fillMaxWidth()) {
+        VerticalPager(
+            state = verticalPager,
+            modifier = Modifier.fillMaxWidth()
+        ) {
 //            if(uiState.reviewScreenUIState.currentIndex != it && it == verticalPager.currentPage && !isScrolling)
 //                goToIndex(it)
             val card = uiState.easyCards.getOrNull(it)
                 ?: uiState.mediumCards.getOrNull(it - uiState.easyCards.size)
                 ?: uiState.hardCards.getOrNull(it - uiState.easyCards.size - uiState.mediumCards.size)
-            Box(modifier = Modifier.height((currentScreenSize-60).dp)) {
+            Box(modifier = Modifier.height((currentScreenSize - 60).dp)) {
                 Column {
                     if (card != null) {
                         MainCardSection(
@@ -131,18 +140,28 @@ fun ReviewScreenBase(uiState: CardGenerationUIState,
                             questionText = card.question,
                             onMicClick = onMicClick,
                             answerText = card.answer,
-                            feedbackText = uiState.reviewScreenUIState.feedbackText?:"",
+                            feedbackText = uiState.reviewScreenUIState.feedbackText ?: "",
                             voiceText = uiState.reviewScreenUIState.voiceText,
                             onHelpClick = onHelpClick,
-                            shouldShowAnswer = if(uiState.reviewScreenUIState.currentState == CurrentStateOfReviewScreen.AnswerIsDisplayed ||
-                                uiState.reviewScreenUIState.currentState == CurrentStateOfReviewScreen.AnswerIsDisplayedWithFeedback) true else false,
+                            shouldShowAnswer = if (uiState.reviewScreenUIState.currentState == CurrentStateOfReviewScreen.AnswerIsDisplayed ||
+                                uiState.reviewScreenUIState.currentState == CurrentStateOfReviewScreen.AnswerIsDisplayedWithFeedback
+                            ) true else false,
                         )
                         if (uiState.reviewScreenUIState.currentState == CurrentStateOfReviewScreen.OnlyQuestionDisplayed)
                             BottomBarSection(
                                 buttonText = "Show Answer",
                                 onClick = onShowAnswerClick
                             ) else {
-                            ReviewButtons(listOf("1m", "2m", "3m", "5m"))
+                            ReviewButtons(
+                                listOf(
+                                    viewModel.nextReviewTime(
+                                        card.reviewRecord.size,
+                                        Review.HARD
+                                    ),
+                                    viewModel.nextReviewTime(card.reviewRecord.size, Review.MEDIUM),
+                                    viewModel.nextReviewTime(card.reviewRecord.size, Review.EASY)
+                                ), viewModel, card
+                            )
                         }
                     }
                 }
@@ -183,8 +202,8 @@ fun ReviewScreenBase(uiState: CardGenerationUIState,
 //                    }
 //                }
 //            }
-        }
     }
+}
 
 @Composable
 fun CardsLeftIndicator(
@@ -253,7 +272,7 @@ fun TopHeaderSection(
 
             IconButton(onClick = onMuteClick) {
                 Icon(
-                    imageVector = if(isSpeakerActive) Icons.AutoMirrored.Filled.VolumeOff else Icons.AutoMirrored.Filled.VolumeUp,
+                    imageVector = if (isSpeakerActive) Icons.AutoMirrored.Filled.VolumeOff else Icons.AutoMirrored.Filled.VolumeUp,
                     contentDescription = "Mute",
                     tint = iconTint,
                     modifier = Modifier.size(iconSize)
@@ -279,7 +298,7 @@ fun MainCardSection(
     answerText: String,
     feedbackText: String,
     voiceText: String?,
-    onHelpClick: ()->Unit,
+    onHelpClick: () -> Unit,
     onMicClick: () -> Unit,
     shouldShowAnswer: Boolean,
     modifier: Modifier = Modifier,
@@ -333,7 +352,7 @@ fun MainCardSection(
                 )
 
                 // Additional content can go here or leave blank as per current design
-                if(shouldShowAnswer){
+                if (shouldShowAnswer) {
                     Text(
                         text = answerText,
                         style = questionTextStyle,
@@ -346,7 +365,7 @@ fun MainCardSection(
                         color = MaterialTheme.colorScheme.onPrimaryContainer
                     )
                 }
-                if(voiceText != null){
+                if (voiceText != null) {
                     Text(
                         text = voiceText,
                         style = questionTextStyle,
@@ -408,16 +427,14 @@ fun BottomBarSection(
 }
 
 @Composable
-fun ReviewButtons(times: List<String>) {
-    val labels = listOf("Again", "Hard", "Good", "Easy")
+fun ReviewButtons(times: List<String>, viewModel: CardGenerationViewModel, card: Card) {
+    val labels = listOf("Hard", "Good", "Easy")
     val backgroundColors = listOf(
-        Color(0xAA6B202C), // dark red with transparency
         Color(0xAAC68C1D), // mustard yellow with transparency
         Color(0xAA2E4F26), // dark green with transparency
         Color(0xAA3E4E5C)  // dark blue-gray with transparency
     )
     val borderColors = listOf(
-        Color(0xFFF28C8C),
         Color(0xFFE6B800),
         Color(0xFF88D957),
         Color(0xFFA2C3DB)
@@ -439,6 +456,9 @@ fun ReviewButtons(times: List<String>) {
                     .clip(RoundedCornerShape(16.dp))
                     .background(backgroundColors[i])
                     .border(2.dp, borderColors[i], RoundedCornerShape(16.dp))
+                    .clickable {
+                        viewModel.addCard(i, card)
+                    }
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
@@ -465,34 +485,34 @@ fun getScreenHeightInDp(): Int {
     return configuration.screenHeightDp
 }
 
-@Preview(showBackground = true)
-@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
-@Composable
-fun ReviewScreenPreview(){
-    HexagraphTheme {
-        ReviewScreenBase(
-            uiState = CardGenerationUIState(
-                easyQuestions = listOf(
-                    "What is your name?",
-                    "What is your age?",
-                    "What is your favorite color?"
-                ),
-                easyCards = listOf(
-                    Card(
-                        question = "What is your name?",
-                        answer = "John Doe",
-                        deckId = 2,
-                    )
-                ),
-            ),
-            onMenuClick = {},
-            onBackClick = { },
-            onMuteClick = { },
-            onMicClick = { },
-            onCloseClick = { },
-            onHelpClick = {},
-            goToIndex = {},
-            onShowAnswerClick = {  }
-        ) 
-    }
-}
+//@Preview(showBackground = true)
+//@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+//@Composable
+//fun ReviewScreenPreview(){
+//    HexagraphTheme {
+//        ReviewScreenBase(
+//            uiState = CardGenerationUIState(
+//                easyQuestions = listOf(
+//                    "What is your name?",
+//                    "What is your age?",
+//                    "What is your favorite color?"
+//                ),
+//                easyCards = listOf(
+//                    Card(
+//                        question = "What is your name?",
+//                        answer = "John Doe",
+//                        deckId = 2,
+//                    )
+//                ),
+//            ),
+//            onMenuClick = {},
+//            onBackClick = { },
+//            onMuteClick = { },
+//            onMicClick = { },
+//            onCloseClick = { },
+//            onHelpClick = {},
+//            goToIndex = {},
+//            onShowAnswerClick = {  }
+//        )
+//    }
+//}

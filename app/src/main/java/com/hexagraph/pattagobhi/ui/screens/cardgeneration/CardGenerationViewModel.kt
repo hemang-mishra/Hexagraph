@@ -4,11 +4,16 @@ import androidx.lifecycle.viewModelScope
 import com.hexagraph.pattagobhi.Entity.Card
 import com.hexagraph.pattagobhi.dao.DeckDao
 import com.hexagraph.pattagobhi.model.ResponseError
+import com.hexagraph.pattagobhi.repository.DeckRepository
 import com.hexagraph.pattagobhi.service.GeminiService
 import com.hexagraph.pattagobhi.ui.screens.chat.GeminiPrompts
 import com.hexagraph.pattagobhi.ui.screens.onboarding.BaseViewModel
 import com.hexagraph.pattagobhi.util.Review
 import com.hexagraph.pattagobhi.util.Utils.separateQuestions
+import com.hexagraph.pattagobhi.util.calculateHalfLife
+import com.hexagraph.pattagobhi.util.formatTime
+import com.hexagraph.pattagobhi.util.getCurrentTime
+import com.hexagraph.pattagobhi.util.getNextReviewTime
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -23,7 +28,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class CardGenerationViewModel @Inject constructor(
-    private val deckDao: DeckDao
+    private val deckDao: DeckDao,
+    private val deckRepository: DeckRepository
 ) :
     BaseViewModel<CardGenerationUIState>() {
 
@@ -90,6 +96,7 @@ class CardGenerationViewModel @Inject constructor(
                                 deckId = createGenerationUIStateFlow.value.cardGenerationUIStateForUI.deckId,
                                 question = question,
                                 answer = response,
+                                review = Review.EASY
                             )
                         } else {
                             null
@@ -110,6 +117,7 @@ class CardGenerationViewModel @Inject constructor(
                                 deckId = createGenerationUIStateFlow.value.cardGenerationUIStateForUI.deckId,
                                 question = question,
                                 answer = response,
+                                review = Review.MEDIUM
                             )
                         } else {
                             null
@@ -130,6 +138,7 @@ class CardGenerationViewModel @Inject constructor(
                                 deckId = createGenerationUIStateFlow.value.cardGenerationUIStateForUI.deckId,
                                 question = question,
                                 answer = response,
+                                review = Review.HARD
                             )
                         } else {
                             null
@@ -177,7 +186,7 @@ class CardGenerationViewModel @Inject constructor(
     //Review Screen codes
     private val reviewScreenStateFlow = MutableStateFlow(ReviewScreenUIState())
 
-    fun switchReviewScreenState(currentStateOfReviewScreen: CurrentStateOfReviewScreen){
+    fun switchReviewScreenState(currentStateOfReviewScreen: CurrentStateOfReviewScreen) {
         viewModelScope.launch {
             reviewScreenStateFlow.value = reviewScreenStateFlow.value.copy(
                 currentState = currentStateOfReviewScreen
@@ -185,8 +194,8 @@ class CardGenerationViewModel @Inject constructor(
         }
     }
 
-    fun goToAParticularCard(index: Int){
-        if(index > createGenerationUIStateFlow.value.easyCards.size + createGenerationUIStateFlow.value.mediumCards.size + createGenerationUIStateFlow.value.hardCards.size || index < 0){
+    fun goToAParticularCard(index: Int) {
+        if (index > createGenerationUIStateFlow.value.easyCards.size + createGenerationUIStateFlow.value.mediumCards.size + createGenerationUIStateFlow.value.hardCards.size || index < 0) {
             return
         }
         viewModelScope.launch {
@@ -197,7 +206,7 @@ class CardGenerationViewModel @Inject constructor(
         }
     }
 
-    fun toggleSpeakerState(isSpeakerOn: Boolean){
+    fun toggleSpeakerState(isSpeakerOn: Boolean) {
         viewModelScope.launch {
             reviewScreenStateFlow.value = reviewScreenStateFlow.value.copy(
                 isTextToSpeechActive = isSpeakerOn
@@ -206,16 +215,20 @@ class CardGenerationViewModel @Inject constructor(
     }
 
     //Initialization for review
-    fun initializeReviewScreen(deckId: Int){
+    fun initializeReviewScreen(deckId: Int) {
         viewModelScope.launch(Dispatchers.IO) {
             deckDao.getCardByDeck(deckId).collectLatest {
-                val easyCards = it
-//                val mediumCards = it.filter { card -> card.review == Review.MEDIUM }
-//                val hardCards = it.filter { card -> card.review == Review.HARD }
+                val easyCards = it.filter { card -> card.review == Review.EASY }
+                val mediumCards = it.filter { card -> card.review == Review.MEDIUM }
+                val hardCards = it.filter { card -> card.review == Review.HARD }
                 createGenerationUIStateFlow.emit(
                     createGenerationUIStateFlow.value.copy(
                         easyCards = easyCards,
                         easyQuestions = easyCards.map { it.question },
+                        mediumCards = mediumCards,
+                        mediumQuestions = mediumCards.map { it.question },
+                        hardCards = hardCards,
+                        hardQuestions = hardCards.map { it.question },
                         currentScreen = CurrentScreen.ReviewScreen
                     )
                 )
@@ -231,7 +244,7 @@ class CardGenerationViewModel @Inject constructor(
             errorFlow,
             successMsgFlow,
             reviewScreenStateFlow
-        ) { stateFlow, uiStateForUI, error, msg, reviewFlow->
+        ) { stateFlow, uiStateForUI, error, msg, reviewFlow ->
             stateFlow.copy(
                 cardGenerationUIStateForUI = uiStateForUI,
                 errorMessage = error?.genericToast,
@@ -243,5 +256,40 @@ class CardGenerationViewModel @Inject constructor(
             started = SharingStarted.Eagerly,
             initialValue = CardGenerationUIState()
         )
+    }
+
+    fun nextReviewTime(numberOfPreviousReview: Int, review: Review): String {
+        var difficulty: Double = 0.0 // 0.2 0.6 0.9
+        if (review == Review.HARD) difficulty = 0.9
+        if (review == Review.MEDIUM) difficulty = 0.6
+        if (review == Review.EASY) difficulty = 0.2
+        return formatTime(calculateHalfLife(numberOfPreviousReview + 1, difficulty))
+    }
+
+    fun addCard(idx: Int, card: Card) {
+        val cardRecords: MutableList<String> = card.reviewRecord.toMutableList()
+        var nextReview = ""
+        if (idx == 2) {
+            nextReview = getNextReviewTime(card.reviewRecord.size, 0.2)
+            card.review  = Review.EASY
+        }
+        if (idx == 1) {
+            nextReview = getNextReviewTime(card.reviewRecord.size, 0.6)
+            card.review  = Review.MEDIUM
+        }
+        if (idx == 0) {
+            nextReview = getNextReviewTime(card.reviewRecord.size, 0.9)
+            card.review  = Review.HARD
+
+        }
+        cardRecords.add(getCurrentTime())
+        viewModelScope.launch {
+            deckRepository.insertCard(
+                card.copy(
+                    reviewRecord = cardRecords,
+                    nextReview = nextReview
+                )
+            )
+        }
     }
 }
