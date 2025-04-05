@@ -20,19 +20,32 @@ class ChatViewModel @Inject constructor() : BaseViewModel<ChatUIState>() {
     private val history = MutableStateFlow<List<BotComponent>>(emptyList())
     private val chatUIStateFlow = MutableStateFlow<ChatUIState>(ChatUIState())
     private val geminiService: GeminiService = GeminiService()
+    fun setInitialPrompt(prompt: String) {
+        viewModelScope.launch {
+            chatUIStateFlow.emit(
+                chatUIStateFlow.value.copy(
+                    initialPrompt = prompt
+                )
+            )
+        }
+    }
+
+
     fun sendPrompt(
         prompt: String,
+        addThisHistory: Boolean = true,
         basePrompts: String = GeminiPrompts.defaultPrompt()
     ) {
 //        data.value = GeminiData()
 //        _uiState.value = GeminiUiState.Loading
+        if(addThisHistory)
         addHistory(BotComponent.UserResponseState("1", prompt))
 //        chatUiState.value = BotUiState.GEMINI
         viewModelScope.launch(Dispatchers.IO) {
             chatUIStateFlow.emit(chatUIStateFlow.value.copy(isLoading = true,
                 currentInteraction = BotUiState.GEMINI))
             try {
-                val response = geminiService.generateContent(prompt = basePrompts+prompt)
+                val response = geminiService.generateContent(prompt = basePrompts+updatePrompt(prompt))
                 response?.let { outputContent ->
                     addHistory(
                         BotComponent.GeminiResponseState(
@@ -84,5 +97,19 @@ class ChatViewModel @Inject constructor() : BaseViewModel<ChatUIState>() {
             started = SharingStarted.Eagerly,
             ChatUIState()
         )
+    }
+
+    fun updatePrompt(prompt: String): String {
+        var promptFull = "I am providing you initial context first: Just view this as context"+uiState.value.initialPrompt
+        history.value.forEach {
+            if(it is BotComponent.GeminiResponseState){
+                promptFull += "Gemini replies: "+it.response
+            }
+            if(it is BotComponent.UserResponseState){
+                promptFull += "User asks: "+it.response
+            }
+        }
+        promptFull += "Now, I am providing you the question and answer this only: $prompt"
+        return promptFull
     }
 }

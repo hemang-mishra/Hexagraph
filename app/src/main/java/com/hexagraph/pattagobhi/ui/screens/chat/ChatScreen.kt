@@ -1,6 +1,7 @@
 package com.hexagraph.pattagobhi.ui.screens.chat
 
 import android.util.Log
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -36,7 +37,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
 import com.hexagraph.pattagobhi.ui.components.BotTextField
 import com.hexagraph.pattagobhi.ui.components.ChatRow
 import com.hexagraph.pattagobhi.ui.components.NextImageButton
@@ -45,12 +45,16 @@ import com.hexagraph.pattagobhi.ui.components.Response
 
 @Composable
 fun BotScreen(
-    chatViewModel: ChatViewModel = hiltViewModel()
+    chatViewModel: ChatViewModel = hiltViewModel(),
+    initialPrompt: String,
+    onGoBack: ()->Unit
 ) {
     val uiState by chatViewModel.uiState.collectAsState()
     var prompt by rememberSaveable { mutableStateOf("") }
     var columnState = rememberLazyListState()
-
+    BackHandler {
+        onGoBack()
+    }
 //    LaunchedEffect(uiState.isScrollRequired) {
 //        if (uiState.isScrollRequired) {
 //            columnState.animateScrollToItem(uiState.history.size)
@@ -59,6 +63,10 @@ fun BotScreen(
 //    }
     val snackbarHostState = remember {
         SnackbarHostState()
+    }
+    LaunchedEffect(initialPrompt) {
+        chatViewModel.setInitialPrompt(initialPrompt)
+        chatViewModel.sendPrompt(initialPrompt, addThisHistory = false)
     }
     Scaffold(
         snackbarHost = {
@@ -82,6 +90,7 @@ fun BotScreen(
                     .padding(end = 8.dp)
                     .clickable {
 //                        navController.navigate(NavHomeScreen())
+                        onGoBack()
                     })
             Column(
                 modifier = Modifier
@@ -117,9 +126,9 @@ fun BotScreen(
                     }
                     item {
                         when (uiState.currentInteraction) {
-                            BotUiState.GEMINI -> {
-                                GeminiResponseBase(geminiViewModel = chatViewModel)
-                            }
+//                            BotUiState.GEMINI -> {
+//                                GeminiResponseBase(geminiViewModel = chatViewModel)
+//                            }
 
                             else -> {}
                         }

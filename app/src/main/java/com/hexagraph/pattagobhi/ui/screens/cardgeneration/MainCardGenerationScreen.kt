@@ -9,6 +9,8 @@ import androidx.compose.animation.with
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -16,6 +18,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import com.hexagraph.pattagobhi.R
 import com.hexagraph.pattagobhi.ui.components.LottieAnimationComposable
 import com.hexagraph.pattagobhi.ui.components.Wait
@@ -29,39 +32,49 @@ fun MainCardGenerationScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
-    AnimatedContent(
-        targetState = uiState.currentScreen,
-        transitionSpec = {
-            fadeIn() togetherWith fadeOut()
-        }
-    ) { targetScreen ->
-        when (targetScreen) {
-            CurrentScreen.TopicInputScreen -> {
-                TopicInputScreen(
-                    viewModel = viewModel,
-                    onGenerateClick = {
-                        viewModel.generateQuestions(
-                            uiState.cardGenerationUIStateForUI.topic,
-                            uiState.cardGenerationUIStateForUI.easyQuestions.toInt(),
-                            uiState.cardGenerationUIStateForUI.mediumQuestions.toInt(),
-                            uiState.cardGenerationUIStateForUI.hardQuestions.toInt(),
+    Scaffold(
+        modifier = Modifier.fillMaxSize()
+    ) {padding->
+        AnimatedContent(
+            targetState = uiState.currentScreen,
+            transitionSpec = {
+                fadeIn() togetherWith fadeOut()
+            },
+            modifier = Modifier.padding(padding)
+        ) { targetScreen ->
+            when (targetScreen) {
+                CurrentScreen.TopicInputScreen -> {
+                    TopicInputScreen(
+                        viewModel = viewModel,
+                        onGenerateClick = {
+                            viewModel.generateQuestions(
+                                uiState.cardGenerationUIStateForUI.topic,
+                                uiState.cardGenerationUIStateForUI.easyQuestions.toInt(),
+                                uiState.cardGenerationUIStateForUI.mediumQuestions.toInt(),
+                                uiState.cardGenerationUIStateForUI.hardQuestions.toInt(),
+                            )
+                        }
+                    )
+                }
+
+                CurrentScreen.ReviewScreen -> {
+                    ReviewScreen(viewModel)
+                }
+
+                CurrentScreen.ChatScreen -> {
+                    BotScreen(initialPrompt = uiState.prompt,
+                        onGoBack = {
+                            viewModel.switchScreen(uiState.previousScreen?:CurrentScreen.ChatScreen)
+                        })
+                }
+
+                CurrentScreen.Loading -> {
+                    Box(modifier = Modifier.fillMaxSize()) {
+                        LottieAnimationComposable(
+                            modifier = Modifier.fillMaxSize(),
+                            resource = R.raw.loading_animation
                         )
                     }
-                )
-            }
-            CurrentScreen.ReviewScreen -> {
-                ReviewScreen(uiState)
-            }
-            CurrentScreen.ChatScreen -> {
-                BotScreen()
-            }
-
-            CurrentScreen.Loading -> {
-                Box(modifier = Modifier.fillMaxSize()) {
-                    LottieAnimationComposable(
-                        modifier = Modifier.fillMaxSize(),
-                        resource = R.raw.loading_animation
-                    )
                 }
             }
         }
