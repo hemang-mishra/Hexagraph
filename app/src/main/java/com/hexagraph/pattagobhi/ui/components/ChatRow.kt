@@ -48,7 +48,7 @@ fun ChatRow(imageResId: Int = R.drawable.assistanticon, chatText: String, isAI: 
             shape = RoundedCornerShape(0.dp, 16.dp, 16.dp, 16.dp),
             modifier = Modifier.fillMaxWidth(0.95f),
             colors = CardDefaults.cardColors(
-                containerColor = Color(0x99AED5FF)
+                containerColor = Color(0xFF5A6A79)
             )
         ) {
             if(!isHtml){
@@ -56,7 +56,7 @@ fun ChatRow(imageResId: Int = R.drawable.assistanticon, chatText: String, isAI: 
                     text = chatText,
                     modifier = Modifier.padding(16.dp),
                     fontSize = if(!isAI) 16.sp else 13.sp,
-                    color = MaterialTheme.colorScheme.onPrimary)
+                    color = Color.White)
             }
             else
             {
