@@ -2,6 +2,7 @@ package com.hexagraph.pattagobhi.ui.screens.cardgeneration
 
 import androidx.lifecycle.viewModelScope
 import com.hexagraph.pattagobhi.Entity.Card
+import com.hexagraph.pattagobhi.Entity.Deck
 import com.hexagraph.pattagobhi.dao.DeckDao
 import com.hexagraph.pattagobhi.model.ResponseError
 import com.hexagraph.pattagobhi.repository.DeckRepository
@@ -22,6 +23,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -36,6 +38,17 @@ class CardGenerationViewModel @Inject constructor(
     private val createGenerationUIStateFlow = MutableStateFlow(CardGenerationUIState())
     private val uiStateForUIFlow = MutableStateFlow(CardGenerationUIStateForUI())
     private val geminiService = GeminiService()
+    val listOfDecks = deckRepository.getAllDeck()
+
+    fun selectDeck(deckId: Deck) {
+        viewModelScope.launch {
+            uiStateForUIFlow.emit(
+                uiStateForUIFlow.value.copy(
+                    deck = deckId
+                )
+            )
+        }
+    }
 
     fun generateQuestions(topic: String, easyCount: Int, mediumCount: Int, hardCount: Int) {
         viewModelScope.launch {
@@ -93,7 +106,7 @@ class CardGenerationViewModel @Inject constructor(
                         val response = geminiService.generateContent(prompt = prompt)
                         if (response != null) {
                             Card(
-                                deckId = createGenerationUIStateFlow.value.cardGenerationUIStateForUI.deckId,
+                                deckId = createGenerationUIStateFlow.value.cardGenerationUIStateForUI.deck.id,
                                 question = question,
                                 answer = response,
                                 review = Review.EASY
@@ -114,7 +127,7 @@ class CardGenerationViewModel @Inject constructor(
                         val response = geminiService.generateContent(prompt = prompt)
                         if (response != null) {
                             Card(
-                                deckId = createGenerationUIStateFlow.value.cardGenerationUIStateForUI.deckId,
+                                deckId = createGenerationUIStateFlow.value.cardGenerationUIStateForUI.deck.id,
                                 question = question,
                                 answer = response,
                                 review = Review.MEDIUM
@@ -135,7 +148,7 @@ class CardGenerationViewModel @Inject constructor(
                         val response = geminiService.generateContent(prompt = prompt)
                         if (response != null) {
                             Card(
-                                deckId = createGenerationUIStateFlow.value.cardGenerationUIStateForUI.deckId,
+                                deckId = createGenerationUIStateFlow.value.cardGenerationUIStateForUI.deck.id,
                                 question = question,
                                 answer = response,
                                 review = Review.HARD
@@ -231,6 +244,9 @@ class CardGenerationViewModel @Inject constructor(
                         hardQuestions = hardCards.map { it.question },
                         currentScreen = CurrentScreen.ReviewScreen
                     )
+                )
+                uiStateForUIFlow.emit(
+                    uiStateForUIFlow.value.copy(deck = listOfDecks.first().find { it.id == deckId }?:Deck())
                 )
             }
         }
