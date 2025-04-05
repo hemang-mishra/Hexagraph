@@ -51,7 +51,8 @@ data class ReviewScreenUIState(
     val currentIndex: Int = 0,
     val currentState : CurrentStateOfReviewScreen = CurrentStateOfReviewScreen.OnlyQuestionDisplayed,
     val feedbackText: String? = null,
-    val voiceText: String? = null
+    val voiceText: String? = null,
+    val isTextToSpeechActive: Boolean = true
 )
 
 enum class CurrentScreen {

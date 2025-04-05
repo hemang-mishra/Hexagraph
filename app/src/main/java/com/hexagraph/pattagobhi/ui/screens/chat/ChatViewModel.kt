@@ -2,7 +2,6 @@ package com.hexagraph.pattagobhi.ui.screens.chat
 
 import androidx.compose.material3.SnackbarHostState
 import androidx.lifecycle.viewModelScope
-import com.google.ai.client.generativeai.type.content
 import com.hexagraph.pattagobhi.service.GeminiService
 import com.hexagraph.pattagobhi.ui.screens.onboarding.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -38,14 +37,19 @@ class ChatViewModel @Inject constructor() : BaseViewModel<ChatUIState>() {
     ) {
 //        data.value = GeminiData()
 //        _uiState.value = GeminiUiState.Loading
-        if(addThisHistory)
-        addHistory(BotComponent.UserResponseState("1", prompt))
+        if (addThisHistory)
+            addHistory(BotComponent.UserResponseState("1", prompt))
 //        chatUiState.value = BotUiState.GEMINI
         viewModelScope.launch(Dispatchers.IO) {
-            chatUIStateFlow.emit(chatUIStateFlow.value.copy(isLoading = true,
-                currentInteraction = BotUiState.GEMINI))
+            chatUIStateFlow.emit(
+                chatUIStateFlow.value.copy(
+                    isLoading = true,
+                    currentInteraction = BotUiState.GEMINI
+                )
+            )
             try {
-                val response = geminiService.generateContent(prompt = basePrompts+updatePrompt(prompt))
+                val response =
+                    geminiService.generateContent(prompt = basePrompts + updatePrompt(prompt))
                 response?.let { outputContent ->
                     addHistory(
                         BotComponent.GeminiResponseState(
@@ -57,7 +61,12 @@ class ChatViewModel @Inject constructor() : BaseViewModel<ChatUIState>() {
 //                    chatUiState.value = BotUiState.MENU
                 }
             } catch (e: Exception) {
-                chatUIStateFlow.emit(chatUIStateFlow.value.copy(isLoading = true, geminiUiState = GeminiUiState.Error(e.message.toString())))
+                chatUIStateFlow.emit(
+                    chatUIStateFlow.value.copy(
+                        isLoading = true,
+                        geminiUiState = GeminiUiState.Error(e.message.toString())
+                    )
+                )
             }
         }
     }
@@ -71,8 +80,8 @@ class ChatViewModel @Inject constructor() : BaseViewModel<ChatUIState>() {
         }
     }
 
-    fun onClick(snackbarHostState: SnackbarHostState, prompt: String){
-        if(prompt.isNotEmpty())
+    fun onClick(snackbarHostState: SnackbarHostState, prompt: String) {
+        if (prompt.isNotEmpty())
             sendPrompt(prompt)
     }
 
@@ -88,8 +97,7 @@ class ChatViewModel @Inject constructor() : BaseViewModel<ChatUIState>() {
 
     override val uiState: StateFlow<ChatUIState> = createUiStateFlow()
     override fun createUiStateFlow(): StateFlow<ChatUIState> {
-        return combine(chatUIStateFlow, history){
-            chatUIState, history ->
+        return combine(chatUIStateFlow, history) { chatUIState, history ->
             chatUIState.copy(
                 history = history
             )
@@ -101,13 +109,14 @@ class ChatViewModel @Inject constructor() : BaseViewModel<ChatUIState>() {
     }
 
     fun updatePrompt(prompt: String): String {
-        var promptFull = "I am providing you initial context first: Just view this as context"+uiState.value.initialPrompt
+        var promptFull =
+            "I am providing you initial context first: Just view this as context" + uiState.value.initialPrompt
         history.value.forEach {
-            if(it is BotComponent.GeminiResponseState){
-                promptFull += "Gemini replies: "+it.response
+            if (it is BotComponent.GeminiResponseState) {
+                promptFull += "Gemini replies: " + it.response
             }
-            if(it is BotComponent.UserResponseState){
-                promptFull += "User asks: "+it.response
+            if (it is BotComponent.UserResponseState) {
+                promptFull += "User asks: " + it.response
             }
         }
         promptFull += "Now, I am providing you the question and answer this only: $prompt"
