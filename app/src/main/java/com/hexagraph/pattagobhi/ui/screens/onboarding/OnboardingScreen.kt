@@ -170,7 +170,7 @@ private fun NonAnimatedCenterS1(modifier: Modifier) {
         )
         Spacer(modifier = Modifier.height(16.dp))
         Text(
-            text = "Welcome to Kuch Bhi",
+            text = "Welcome to MindStacks",
             style = TextStyle(
                 fontSize = 24.sp,
                 lineHeight = 48.sp,
@@ -179,7 +179,7 @@ private fun NonAnimatedCenterS1(modifier: Modifier) {
         )
         Spacer(modifier = Modifier.height(16.dp))
         Text(
-            text = "Get the latest headlines and breaking news delivered straight to your device to can quickly catch up on what matters most. Never miss a beat!",
+            text = "Empower your learning journey by creating personalized flashcards tailored to your study needs. Let's get started!",
             style = TextStyle(
                 fontSize = 16.sp,
                 lineHeight = 21.sp,
@@ -206,7 +206,7 @@ private fun NonAnimatedCenterS2(modifier: Modifier) {
         )
         Spacer(modifier = Modifier.height(16.dp))
         Text(
-            text = "Empower Yourself with Truth",
+            text = "Create Flashcards with Ease",
             style = TextStyle(
                 fontSize = 24.sp,
                 lineHeight = 48.sp,
@@ -215,7 +215,7 @@ private fun NonAnimatedCenterS2(modifier: Modifier) {
         )
         Spacer(modifier = Modifier.height(16.dp))
         Text(
-            text = "Identify potentially misleading content and fake news, ensuring you always stay informed with accurate information.",
+            text = "Simply enter your topic, choose the number of flashcards, and customize difficulty levels to generate your perfect study set.",
             style = TextStyle(
                 fontSize = 16.sp,
                 lineHeight = 21.sp,
@@ -243,7 +243,7 @@ private fun NonAnimatedCenterS3(modifier: Modifier) {
         )
         Spacer(modifier = Modifier.height(16.dp))
         Text(
-            text = "Elevate Your Writing with AI",
+            text = "Study On-the-Go",
             style = TextStyle(
                 fontSize = 24.sp,
                 lineHeight = 48.sp,
@@ -252,7 +252,7 @@ private fun NonAnimatedCenterS3(modifier: Modifier) {
         )
         Spacer(modifier = Modifier.height(16.dp))
         Text(
-            text = "Our AI-assisted writing feature helps you craft compelling stories with ease. From generating ideas to refining your drafts, you can produce high-quality content faster than ever!",
+            text = "Access your flashcards anytime, anywhere, and track your progress to achieve your learning goals.",
             style = TextStyle(
                 fontSize = 16.sp,
                 lineHeight = 21.sp,

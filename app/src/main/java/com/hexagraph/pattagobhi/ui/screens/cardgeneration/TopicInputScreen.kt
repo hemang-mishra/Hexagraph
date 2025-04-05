@@ -2,7 +2,10 @@ package com.hexagraph.pattagobhi.ui.screens.cardgeneration
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Lightbulb
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -13,30 +16,22 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hexagraph.pattagobhi.ui.components.AppButton
 import com.hexagraph.pattagobhi.ui.components.AppTextField
+import androidx.compose.ui.text.input.KeyboardType
 
 @Composable
-fun TopicInputScreen(viewModel: CardGenerationViewModel,
-                     onGenerateClick: () -> Unit){
+fun TopicInputScreen(
+    viewModel: CardGenerationViewModel,
+    onGenerateClick: () -> Unit
+) {
     val uiState by viewModel.uiState.collectAsState()
     TopicInputScreenBase(
         uiState = uiState.cardGenerationUIStateForUI,
-        onTopicChange = {
-            viewModel.updateUIStateForUI(topic = it)
-        },
-        onEasyQuestionsChange = {
-            viewModel.updateUIStateForUI(easyQuestions = it)
-        },
-        onMediumQuestionsChange = {
-            viewModel.updateUIStateForUI(mediumQuestions = it)
-        },
-        onHardQuestionsChange = {
-            viewModel.updateUIStateForUI(hardQuestions = it)
-        },
-        onGenerateClick = {
-            onGenerateClick()
-        }
+        onTopicChange = { viewModel.updateUIStateForUI(topic = it) },
+        onEasyQuestionsChange = { viewModel.updateUIStateForUI(easyQuestions = it) },
+        onMediumQuestionsChange = { viewModel.updateUIStateForUI(mediumQuestions = it) },
+        onHardQuestionsChange = { viewModel.updateUIStateForUI(hardQuestions = it) },
+        onGenerateClick = onGenerateClick
     )
-
 }
 
 @Composable
@@ -49,6 +44,7 @@ private fun TopicInputScreenBase(
     onGenerateClick: () -> Unit
 ) {
     val scrollState = rememberScrollState()
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -63,45 +59,53 @@ private fun TopicInputScreenBase(
             modifier = Modifier.padding(bottom = 16.dp)
         )
 
+        // Topic input field
         AppTextField(
             value = uiState.topic,
+            icon = Icons.Default.Lightbulb,
             onValueChange = onTopicChange,
             outerText = "Topic",
             placeholderText = "Enter topic",
-            isError = uiState.topic.isEmpty(),
             errorText = "Topic cannot be empty"
         )
 
+        // Number of Easy Questions
         AppTextField(
             value = uiState.easyQuestions,
             onValueChange = onEasyQuestionsChange,
             outerText = "Easy Questions",
             placeholderText = "Enter number of easy questions",
-            isError = !uiState.isEasyQuestionsValid,
-            errorText = "Must be a valid integer"
+            errorText = "Must be a valid integer",
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
         )
 
+        // Number of Medium Questions
         AppTextField(
             value = uiState.mediumQuestions,
             onValueChange = onMediumQuestionsChange,
             outerText = "Medium Questions",
             placeholderText = "Enter number of medium questions",
-            isError = !uiState.isMediumQuestionsValid,
-            errorText = "Must be a valid integer"
+            errorText = "Must be a valid integer",
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
         )
 
+        // Number of Hard Questions
         AppTextField(
             value = uiState.hardQuestions,
             onValueChange = onHardQuestionsChange,
             outerText = "Hard Questions",
             placeholderText = "Enter number of hard questions",
-            isError = !uiState.isHardQuestionsValid,
-            errorText = "Must be a valid integer"
+            errorText = "Must be a valid integer",
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
         )
 
+        // Generate button, enabled when topic is provided and all question fields are valid.
         AppButton(
             text = "Generate",
-            isEnabled = uiState.topic.isNotEmpty() && uiState.isEasyQuestionsValid && uiState.isMediumQuestionsValid && uiState.isHardQuestionsValid,
+            isEnabled = uiState.topic.isNotEmpty() &&
+                    uiState.isEasyQuestionsValid &&
+                    uiState.isMediumQuestionsValid &&
+                    uiState.isHardQuestionsValid,
             onClick = onGenerateClick
         )
     }
