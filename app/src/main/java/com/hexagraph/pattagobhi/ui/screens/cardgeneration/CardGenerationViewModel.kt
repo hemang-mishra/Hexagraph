@@ -47,7 +47,7 @@ class CardGenerationViewModel @Inject constructor() :
                         hardCount
                     )
                     createGenerationUIStateFlow.value = createGenerationUIStateFlow.value.copy(
-                        currentScreen = CurrentScreen.ReviewScreen,
+//                        currentScreen = CurrentScreen.ReviewScreen,
                         easyQuestions = easyQuestions,
                         mediumQuestions = mediumQuestions,
                         hardQuestions = hardQuestions,
@@ -65,8 +65,8 @@ class CardGenerationViewModel @Inject constructor() :
 
     fun fetchAnswers() {
         viewModelScope.launch {
-            createGenerationUIStateFlow.value =
-                createGenerationUIStateFlow.value.copy(currentScreen = CurrentScreen.Loading)
+//            createGenerationUIStateFlow.value =
+//                createGenerationUIStateFlow.value.copy(currentScreen = CurrentScreen.Loading)
             try {
                 val easyQuestions = createGenerationUIStateFlow.value.easyQuestions
                 val mediumQuestions = createGenerationUIStateFlow.value.mediumQuestions
