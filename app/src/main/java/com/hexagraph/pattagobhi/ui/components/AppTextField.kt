@@ -54,7 +54,10 @@ fun AppTextField(
     isError: Boolean = false,
     errorText: String = "Invalid Email Format",
     isPassword: Boolean = false,
-    keyboardOptions: KeyboardOptions = KeyboardOptions.Default
+    isEnabled: Boolean = true,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    maxLines: Int = 1,
+    keyboardActions: KeyboardActions = KeyboardActions()
 ) {
     // Use fillMaxWidth for responsiveness rather than a fixed width.
     Box(
@@ -82,7 +85,11 @@ fun AppTextField(
                 errorText = errorText,
                 keyboardOptions = keyboardOptions,
                 isPassword = isPassword,
-                onValueChange = onValueChange
+
+                onValueChange = onValueChange,
+                isEnabled = isEnabled,
+                maxLines = maxLines,
+                keyboardActions = keyboardActions
             )
         }
     }
@@ -99,10 +106,15 @@ fun LoginTextField(
     keyboardOptions: KeyboardOptions,
     errorText: String,
     onValueChange: (String) -> Unit,
+    isEnabled: Boolean,
+    maxLines: Int,
+    keyboardActions: KeyboardActions
 ) {
     var showPassword by remember { mutableStateOf(false) }
     OutlinedTextField(
+        maxLines = maxLines,
         value = value,
+        enabled = isEnabled,
         onValueChange = onValueChange,
         placeholder = {
             Text(
@@ -111,6 +123,7 @@ fun LoginTextField(
             )
         },
         keyboardOptions = keyboardOptions,
+        keyboardActions = keyboardActions,
         visualTransformation = if (isPassword && !showPassword) PasswordVisualTransformation() else VisualTransformation.None,
         isError = isError,
         supportingText = { if (isError) Text(text = errorText, color = MaterialTheme.colorScheme.error) },

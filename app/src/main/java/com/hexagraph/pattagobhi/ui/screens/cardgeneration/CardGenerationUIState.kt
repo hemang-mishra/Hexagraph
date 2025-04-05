@@ -1,6 +1,7 @@
 package com.hexagraph.pattagobhi.ui.screens.cardgeneration
 
 import com.hexagraph.pattagobhi.Entity.Card
+import com.hexagraph.pattagobhi.Entity.Deck
 import com.hexagraph.pattagobhi.ui.screens.chat.GeminiPrompts
 
 data class CardGenerationUIState(
@@ -15,7 +16,7 @@ data class CardGenerationUIState(
     val cardGenerationUIStateForUI: CardGenerationUIStateForUI = CardGenerationUIStateForUI(),
     val currentScreen: CurrentScreen = CurrentScreen.TopicInputScreen,
     val previousScreen: CurrentScreen? = null,
-    val reviewScreenUIState: ReviewScreenUIState = ReviewScreenUIState()
+    val reviewScreenUIState: ReviewScreenUIState = ReviewScreenUIState(),
 ){
     val prompt: String
         get() {
@@ -30,12 +31,12 @@ data class CardGenerationUIState(
 }
 
 data class CardGenerationUIStateForUI(
-    val topic: String = "",
-    val easyQuestions: String = "",
-    val mediumQuestions: String = "",
-    val hardQuestions: String = "",
+    val topic: String = "Android Lifecycle",
+    val easyQuestions: String = "4",
+    val mediumQuestions: String = "3",
+    val hardQuestions: String = "2",
     val errorMessage: String? = null,
-    val deckId: Int = 1
+    val deck: Deck = Deck()
 ) {
     val isEasyQuestionsValid: Boolean
         get() = easyQuestions.toIntOrNull() != null

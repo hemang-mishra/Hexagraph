@@ -1,13 +1,24 @@
 package com.hexagraph.pattagobhi.ui.screens.cardgeneration
 
 
-import android.content.res.Configuration
+import android.Manifest
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Bundle
+import android.speech.RecognitionListener
+import android.speech.RecognizerIntent
+import android.speech.SpeechRecognizer
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.VerticalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
@@ -17,42 +28,49 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.VolumeOff
 import androidx.compose.material.icons.automirrored.filled.VolumeUp
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Mic
+import androidx.compose.material.icons.filled.QuestionMark
 import androidx.compose.material.icons.filled.VolumeOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import com.hexagraph.pattagobhi.Entity.Card
 import com.hexagraph.pattagobhi.R
-import com.hexagraph.pattagobhi.ui.theme.HexagraphTheme
 import com.hexagraph.pattagobhi.util.Review
+import java.util.Locale
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ReviewScreen(viewModel: CardGenerationViewModel, goToHomeScreen: () -> Unit) {
     val uiState by viewModel.uiState.collectAsState()
+    var isReviewBottomSheetVisible by rememberSaveable { mutableStateOf(false) }
+    val sheetState = rememberModalBottomSheetState()
 
     ReviewScreenBase(
         uiState = uiState,
@@ -76,9 +94,23 @@ fun ReviewScreen(viewModel: CardGenerationViewModel, goToHomeScreen: () -> Unit)
         goToIndex = { index ->
             viewModel.goToAParticularCard(index)
         },
-        viewModel,
-        goToHomeScreen
+        onSpeechEnd = {
+            viewModel.generateFeedback()
+            isReviewBottomSheetVisible = true
+        },
+        viewModel = viewModel,
+        goToHomeScreen = goToHomeScreen
     )
+
+    if(isReviewBottomSheetVisible){
+        FeedbackBottomSheet(
+            sheetState = sheetState,
+            response = uiState.reviewScreenUIState.feedbackText,
+            onDismissRequest = {
+                isReviewBottomSheetVisible = false
+            }
+        )
+    }
 
 }
 
@@ -88,6 +120,7 @@ fun ReviewScreenBase(
     onMenuClick: () -> Unit,
     onBackClick: () -> Unit,
     onMuteClick: () -> Unit,
+    onSpeechEnd: () -> Unit,
     onMicClick: () -> Unit,
     onCloseClick: () -> Unit,
     onHelpClick: () -> Unit,
@@ -148,6 +181,7 @@ fun ReviewScreenBase(
                             shouldShowAnswer = if (uiState.reviewScreenUIState.currentState == CurrentStateOfReviewScreen.AnswerIsDisplayed ||
                                 uiState.reviewScreenUIState.currentState == CurrentStateOfReviewScreen.AnswerIsDisplayedWithFeedback
                             ) true else false,
+                            onSpeechTextEnd = onSpeechEnd
                         )
                         if (uiState.reviewScreenUIState.currentState == CurrentStateOfReviewScreen.OnlyQuestionDisplayed)
                             BottomBarSection(
@@ -266,7 +300,7 @@ fun TopHeaderSection(
         Row {
             IconButton(onClick = onBackClick) {
                 Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    imageVector = Icons.Default.Mic,
                     contentDescription = "Back",
                     tint = iconTint,
                     modifier = Modifier.size(iconSize)
@@ -284,8 +318,8 @@ fun TopHeaderSection(
 
             IconButton(onClick = onCloseClick) {
                 Icon(
-                    imageVector = Icons.Default.Close,
-                    contentDescription = "Close",
+                    imageVector = Icons.Default.QuestionMark,
+                    contentDescription = "AI",
                     tint = iconTint,
                     modifier = Modifier.size(iconSize)
                 )
@@ -301,25 +335,28 @@ fun MainCardSection(
     answerText: String,
     feedbackText: String,
     voiceText: String?,
+    onSpeechTextEnd: () -> Unit,
     onHelpClick: () -> Unit,
     onMicClick: () -> Unit,
     shouldShowAnswer: Boolean,
     modifier: Modifier = Modifier,
-    cardBackgroundColor: Color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f),
+    cardBackgroundColor: Color = Color(0xFF393C3F),
     textColor: Color = MaterialTheme.colorScheme.onPrimaryContainer,
     iconTint: Color = Color.Blue,
     iconSize: Dp = 48.dp,
     questionTextStyle: TextStyle = MaterialTheme.typography.titleMedium,
 ) {
+    var speechText by remember { mutableStateOf("Your speech will appear here") }
+
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .fillMaxHeight(0.75f),
+            .fillMaxHeight(0.8f),
         colors = CardDefaults.cardColors(containerColor = cardBackgroundColor),
         shape = RoundedCornerShape(12.dp),
     ) {
         Box(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize().border(2.dp, Color.White.copy(alpha = 0.2f), shape = RoundedCornerShape(12.dp)),
         ) {
             // Scrollable Column for content
             Column(
@@ -333,16 +370,15 @@ fun MainCardSection(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(
-                        modifier = Modifier.fillMaxSize(0.7f),
+                        modifier = Modifier.fillMaxWidth(0.75f).padding(top = 8.dp),
                         text = questionText,
                         style = questionTextStyle,
                         color = MaterialTheme.colorScheme.onPrimaryContainer
                     )
-                    IconButton(onClick = onHelpClick) {
+                    IconButton(onClick = onHelpClick, colors = IconButtonDefaults.iconButtonColors(containerColor = Color(0xFF5A6A79))) {
                         Icon(
-                            painter = painterResource(R.drawable.botbutton),
-                            modifier = Modifier.size(25.dp),
-                            tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                            imageVector = Icons.Default.QuestionMark,
+                            modifier = Modifier.size(20.dp),
                             contentDescription = null
                         )
                     }
@@ -368,30 +404,146 @@ fun MainCardSection(
                         color = MaterialTheme.colorScheme.onPrimaryContainer
                     )
                 }
-                if (voiceText != null) {
-                    Text(
-                        text = voiceText,
-                        style = questionTextStyle,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
-                    )
-                }
+                Text(
+                    text = speechText,
+                    style = questionTextStyle,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                )
             }
 
             // Mic/Play Icon at Bottom Center
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(bottom = 16.dp),
-                contentAlignment = Alignment.BottomCenter
-            ) {
-                IconButton(onClick = onMicClick) {
-                    Icon(
-                        imageVector = Icons.Default.Mic,
-                        contentDescription = "Play or Mic",
-                        tint = iconTint,
-                        modifier = Modifier.size(iconSize)
-                    )
-                }
+            RecordVoice(onSpeechTextChanged = {
+                speechText = it
+            },
+                onSpeechEnd = {
+                    onSpeechTextEnd()
+                })
+        }
+    }
+}
+
+@Composable
+fun RecordVoice(onSpeechTextChanged: (String) -> Unit, onSpeechEnd: ()->Unit) {
+    RequestAudioPermission()
+    var isListening by remember { mutableStateOf(false) }
+
+    val context = LocalContext.current
+    val speechRecognizer = remember { SpeechRecognizer.createSpeechRecognizer(context) }
+    val animationScale = remember { Animatable(1f) }
+
+    val speechRecognizerIntent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+        putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+        putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault())
+    }
+
+    val recognitionListener = object : RecognitionListener {
+        override fun onReadyForSpeech(params: Bundle?) {
+            isListening = true
+        }
+
+        override fun onBeginningOfSpeech() {
+
+        }
+
+        override fun onRmsChanged(rmsdB: Float) {}
+
+        override fun onBufferReceived(buffer: ByteArray?) {}
+
+        override fun onEndOfSpeech() {
+            isListening = false
+            onSpeechEnd()
+        }
+
+        override fun onError(error: Int) {
+            isListening = false
+            if (error == 7) onSpeechTextChanged("Click on mic to speak")
+            else onSpeechTextChanged("Something unexpected occurred")
+        }
+
+        override fun onResults(results: Bundle?) {
+            isListening = false
+            val matches = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
+            if (!matches.isNullOrEmpty()) {
+                onSpeechTextChanged(matches[0])
+            }
+        }
+
+        override fun onPartialResults(partialResults: Bundle?) {
+            val matches = partialResults?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
+            if (!matches.isNullOrEmpty()) {
+                onSpeechTextChanged(matches[0])
+            }
+        }
+
+        override fun onEvent(eventType: Int, params: Bundle?) {}
+    }
+
+    speechRecognizer.setRecognitionListener(recognitionListener)
+
+    LaunchedEffect(isListening) {
+        if (isListening) {
+            animationScale.animateTo(
+                targetValue = 1.5f,
+                animationSpec = infiniteRepeatable(
+                    animation = tween(500),
+                    repeatMode = RepeatMode.Reverse
+                )
+            )
+        } else {
+            animationScale.snapTo(1f)
+        }
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(bottom = 16.dp),
+        contentAlignment = Alignment.BottomCenter
+    ) {
+        IconButton(onClick = {
+            if (isListening) {
+                speechRecognizer.stopListening()
+            } else {
+                speechRecognizer.startListening(speechRecognizerIntent)
+            }
+        }) {
+            Icon(
+                imageVector = Icons.Default.Mic,
+                contentDescription = "Play or Mic",
+                modifier = Modifier.size(100.dp),
+                tint = if (isListening) Color.Red else Color.Gray
+            )
+        }
+    }
+}
+
+@Composable
+fun RequestAudioPermission() {
+    val context = LocalContext.current
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+        onResult = { isGranted ->
+            if (!isGranted) {
+                Toast.makeText(
+                    context,
+                    "Audio permission is required to use speech recognition",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        }
+    )
+
+    LaunchedEffect(Unit) {
+        when {
+            ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.RECORD_AUDIO
+            ) == PackageManager.PERMISSION_GRANTED -> {
+                // Permission granted
+            }
+
+            else -> {
+                permissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
             }
         }
     }
@@ -418,7 +570,8 @@ fun BottomBarSection(
             onClick = onClick,
             modifier = Modifier
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(cornerRadius)),
+                .clip(RoundedCornerShape(cornerRadius))
+                .padding(top = 40.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = backgroundColor,
                 contentColor = contentColor
@@ -439,13 +592,15 @@ fun ReviewButtons(
 ) {
     val labels = listOf("Hard", "Good", "Easy")
     val backgroundColors = listOf(
+        Color(0xAA861A1A),
         Color(0xAAC68C1D), // mustard yellow with transparency
-        Color(0xAA2E4F26), // dark green with transparency
+        //Color(0xAA2E4F26), // dark green with transparency
         Color(0xAA3E4E5C)  // dark blue-gray with transparency
     )
     val borderColors = listOf(
+        Color(0xFFEA3860),
         Color(0xFFE6B800),
-        Color(0xFF88D957),
+       // Color(0xFF88D957),
         Color(0xFFA2C3DB)
     )
 

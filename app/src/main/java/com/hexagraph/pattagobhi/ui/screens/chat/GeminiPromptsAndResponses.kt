@@ -46,6 +46,7 @@ object GeminiPrompts{
                 "Explanation should be as simple and accurate as possible\n" +
                 "\n" +
                 "Respond only the answer.\n" +
+                "You can format your response in markdown"+
                 "\n" +
                 "no unnecessary text"
     }
@@ -57,6 +58,19 @@ object GeminiPrompts{
                 "Elaborate your answer. Explain it like explaining to a child. Mention specific term definitions as well.\n" +
                 "\n" +
                 "Use between 100 to 150 words.\n" +
+                "\n" +
+                "No unnecessary text. Answer and text only."
+    }
+    fun feedbackOnResponse(question: String, answer: String, response: String): String{
+        return "Question : $question\n" +
+                "\n" +
+                "Answer : $answer.\n" +
+                "\n" +
+                "The user responded with $response.\n" +
+                "Provide a feedback on the response. Judge whether it is correct or not."+
+                "\n" +
+                "Use between 100 to 150 words.\n" +
+                "You can format your response in markdown"+
                 "\n" +
                 "No unnecessary text. Answer and text only."
     }
