@@ -6,6 +6,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.animation.with
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.SnackbarHostState
@@ -15,6 +16,9 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.hexagraph.pattagobhi.R
+import com.hexagraph.pattagobhi.ui.components.LottieAnimationComposable
+import com.hexagraph.pattagobhi.ui.components.Wait
 import com.hexagraph.pattagobhi.ui.screens.chat.BotScreen
 
 @OptIn(ExperimentalAnimationApi::class)
@@ -46,24 +50,19 @@ fun MainCardGenerationScreen(
                 )
             }
             CurrentScreen.ReviewScreen -> {
-                Column(modifier = Modifier.fillMaxSize()) {
-                    uiState.easyQuestions.forEach(){
-                        Text(it)
-                    }
-                    uiState.mediumQuestions.forEach(){
-                        Text(it)
-                    }
-                    uiState.hardQuestions.forEach(){
-                        Text(it)
-                    }
-                }
+                ReviewScreen(uiState)
             }
             CurrentScreen.ChatScreen -> {
                 BotScreen()
             }
 
             CurrentScreen.Loading -> {
-
+                Box(modifier = Modifier.fillMaxSize()) {
+                    LottieAnimationComposable(
+                        modifier = Modifier.fillMaxSize(),
+                        resource = R.raw.loading_animation
+                    )
+                }
             }
         }
     }

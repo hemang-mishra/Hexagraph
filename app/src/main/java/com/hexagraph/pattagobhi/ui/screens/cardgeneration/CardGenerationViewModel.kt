@@ -135,7 +135,7 @@ class CardGenerationViewModel @Inject constructor() :
                 }
 
                 createGenerationUIStateFlow.value = createGenerationUIStateFlow.value.copy(
-                    currentScreen = CurrentScreen.ChatScreen,
+                    currentScreen = CurrentScreen.ReviewScreen,
                     easyCards = easyCards.await(),
                     mediumCards = mediumCards.await(),
                     hardCards = hardCards.await(),
