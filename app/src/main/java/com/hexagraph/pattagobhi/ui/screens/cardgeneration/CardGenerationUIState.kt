@@ -1,9 +1,14 @@
 package com.hexagraph.pattagobhi.ui.screens.cardgeneration
 
+import com.hexagraph.pattagobhi.Entity.Card
+
 data class CardGenerationUIState(
     val easyQuestions: List<String> = emptyList(),
     val mediumQuestions: List<String> = emptyList(),
     val hardQuestions: List<String> = emptyList(),
+    val easyCards: List<Card> = emptyList(),
+    val mediumCards: List<Card> = emptyList(),
+    val hardCards: List<Card> = emptyList(),
     val errorMessage: String? = null,
     val msgFlow: String? = null,
     val cardGenerationUIStateForUI: CardGenerationUIStateForUI = CardGenerationUIStateForUI(),

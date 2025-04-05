@@ -1,12 +1,14 @@
 package com.hexagraph.pattagobhi.ui.screens.cardgeneration
 
 import androidx.lifecycle.viewModelScope
+import com.hexagraph.pattagobhi.Entity.Card
 import com.hexagraph.pattagobhi.model.ResponseError
 import com.hexagraph.pattagobhi.service.GeminiService
 import com.hexagraph.pattagobhi.ui.screens.chat.GeminiPrompts
 import com.hexagraph.pattagobhi.ui.screens.onboarding.BaseViewModel
 import com.hexagraph.pattagobhi.util.Utils.separateQuestions
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -35,6 +37,7 @@ class CardGenerationViewModel @Inject constructor() :
                     hardCount
                 )
                 val response = geminiService.generateContent(prompt = prompt)
+
                 if (response != null) {
                     val (easyQuestions, mediumQuestions, hardQuestions) = separateQuestions(
                         response,
@@ -49,9 +52,96 @@ class CardGenerationViewModel @Inject constructor() :
                         hardQuestions = hardQuestions,
                         errorMessage = null
                     )
+                    fetchAnswers()
                 } else {
                     emitError(ResponseError.UNKNOWN)
                 }
+            } catch (e: Exception) {
+                emitError(ResponseError.NETWORK_ERROR)
+            }
+        }
+    }
+
+    fun fetchAnswers() {
+        viewModelScope.launch {
+            createGenerationUIStateFlow.value =
+                createGenerationUIStateFlow.value.copy(currentScreen = CurrentScreen.Loading)
+            try {
+                val easyQuestions = createGenerationUIStateFlow.value.easyQuestions
+                val mediumQuestions = createGenerationUIStateFlow.value.mediumQuestions
+                val hardQuestions = createGenerationUIStateFlow.value.hardQuestions
+
+                val easyCards = async {
+                    easyQuestions.map { question ->
+                        val prompt = GeminiPrompts.generateAnswerPrompt(
+                            topic = createGenerationUIStateFlow.value.cardGenerationUIStateForUI.topic,
+                            question = question,
+                            difficulty = "Easy"
+                        )
+                        val response = geminiService.generateContent(prompt = prompt)
+                        if (response != null) {
+                            Card(
+                                deckId = createGenerationUIStateFlow.value.cardGenerationUIStateForUI.deckId,
+                                question = question,
+                                answer = response,
+                                review = ""
+                            )
+                        } else {
+                            null
+                        }
+                    }.filterNotNull()
+                }
+
+                val mediumCards = async {
+                    mediumQuestions.map { question ->
+                        val prompt = GeminiPrompts.generateAnswerPrompt(
+                            topic = createGenerationUIStateFlow.value.cardGenerationUIStateForUI.topic,
+                            question = question,
+                            difficulty = "Medium"
+                        )
+                        val response = geminiService.generateContent(prompt = prompt)
+                        if (response != null) {
+                            Card(
+                                deckId = createGenerationUIStateFlow.value.cardGenerationUIStateForUI.deckId,
+                                question = question,
+                                answer = response,
+                                review = ""
+                            )
+                        } else {
+                            null
+                        }
+                    }.filterNotNull()
+                }
+
+                val hardCards = async {
+                    hardQuestions.map { question ->
+                        val prompt = GeminiPrompts.generateAnswerPrompt(
+                            topic = createGenerationUIStateFlow.value.cardGenerationUIStateForUI.topic,
+                            question = question,
+                            difficulty = "Hard"
+                        )
+                        val response = geminiService.generateContent(prompt = prompt)
+                        if (response != null) {
+                            Card(
+                                deckId = createGenerationUIStateFlow.value.cardGenerationUIStateForUI.deckId,
+                                question = question,
+                                answer = response,
+                                review = ""
+                            )
+                        } else {
+                            null
+                        }
+                    }.filterNotNull()
+                }
+
+                createGenerationUIStateFlow.value = createGenerationUIStateFlow.value.copy(
+                    currentScreen = CurrentScreen.ChatScreen,
+                    easyCards = easyCards.await(),
+                    mediumCards = mediumCards.await(),
+                    hardCards = hardCards.await(),
+                    errorMessage = null
+                )
+                val hello = ""
             } catch (e: Exception) {
                 emitError(ResponseError.NETWORK_ERROR)
             }
