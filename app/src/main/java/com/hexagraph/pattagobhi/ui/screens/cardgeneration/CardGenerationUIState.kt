@@ -1,13 +1,14 @@
 package com.hexagraph.pattagobhi.ui.screens.cardgeneration
 
 data class CardGenerationUIState(
-    val isLoading: Boolean = false,
     val easyQuestions: List<String> = emptyList(),
     val mediumQuestions: List<String> = emptyList(),
     val hardQuestions: List<String> = emptyList(),
     val errorMessage: String? = null,
     val msgFlow: String? = null,
-    val cardGenerationUIStateForUI: CardGenerationUIStateForUI = CardGenerationUIStateForUI()
+    val cardGenerationUIStateForUI: CardGenerationUIStateForUI = CardGenerationUIStateForUI(),
+    val currentScreen: CurrentScreen = CurrentScreen.TopicInputScreen,
+    val previousScreen: CurrentScreen? = null
 )
 
 data class CardGenerationUIStateForUI(
@@ -26,4 +27,11 @@ data class CardGenerationUIStateForUI(
 
     val isHardQuestionsValid: Boolean
         get() = hardQuestions.toIntOrNull() != null
+}
+
+enum class CurrentScreen {
+    TopicInputScreen,
+    ReviewScreen,
+    ChatScreen,
+    Loading
 }

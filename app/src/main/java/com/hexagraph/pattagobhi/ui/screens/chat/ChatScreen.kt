@@ -45,7 +45,6 @@ import com.hexagraph.pattagobhi.ui.components.Response
 
 @Composable
 fun BotScreen(
-    navController: NavController,
     chatViewModel: ChatViewModel = hiltViewModel()
 ) {
     val uiState by chatViewModel.uiState.collectAsState()

@@ -12,11 +12,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import com.hexagraph.pattagobhi.ui.components.ChatRow
 
-class GeminiPrompts(){
-    fun defaultPrompt(prompt: String) = "You are a chat bot friend to ask about users emotions " +
+object GeminiPrompts{
+    fun defaultPrompt() = "You are a chat bot friend to ask about users emotions " +
             "Don't ask counter questions"+
             "You can give recommendations to users and take their doubts." +
-            "But respond like a friendly human. This is the user's query: $prompt"
+            "But respond like a friendly human. This is the user's query: "
 
     fun generateQuestionsPrompt(topic: String, easy: Int, medium: Int, hard: Int): String {
         return "Topic: $topic\n" +

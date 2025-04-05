@@ -8,6 +8,7 @@ import com.hexagraph.pattagobhi.ui.screens.onboarding.BaseViewModel
 import com.hexagraph.pattagobhi.util.Utils.separateQuestions
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
@@ -15,19 +16,19 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class CardGenerationViewModel @Inject constructor(private val geminiService: GeminiService) :
+class CardGenerationViewModel @Inject constructor() :
     BaseViewModel<CardGenerationUIState>() {
 
-    override val uiState: StateFlow<CardGenerationUIState> = createUiStateFlow()
     private val createGenerationUIStateFlow = MutableStateFlow(CardGenerationUIState())
     private val uiStateForUIFlow = MutableStateFlow(CardGenerationUIStateForUI())
+    private val geminiService = GeminiService()
 
     fun generateQuestions(topic: String, easyCount: Int, mediumCount: Int, hardCount: Int) {
         viewModelScope.launch {
             createGenerationUIStateFlow.value =
-                createGenerationUIStateFlow.value.copy(isLoading = true)
+                createGenerationUIStateFlow.value.copy(currentScreen = CurrentScreen.Loading)
             try {
-                val prompt = GeminiPrompts().generateQuestionsPrompt(
+                val prompt = GeminiPrompts.generateQuestionsPrompt(
                     topic,
                     easyCount,
                     mediumCount,
@@ -42,7 +43,7 @@ class CardGenerationViewModel @Inject constructor(private val geminiService: Gem
                         hardCount
                     )
                     createGenerationUIStateFlow.value = createGenerationUIStateFlow.value.copy(
-                        isLoading = false,
+                        currentScreen = CurrentScreen.ReviewScreen,
                         easyQuestions = easyQuestions,
                         mediumQuestions = mediumQuestions,
                         hardQuestions = hardQuestions,
@@ -72,13 +73,22 @@ class CardGenerationViewModel @Inject constructor(private val geminiService: Gem
         )
     }
 
+    fun switchScreen(destinationScreen: CurrentScreen) {
+        val currentState = createGenerationUIStateFlow.value
+        createGenerationUIStateFlow.value = currentState.copy(
+            previousScreen = currentState.currentScreen,
+            currentScreen = destinationScreen
+        )
+    }
+
+    override val uiState: StateFlow<CardGenerationUIState> = createUiStateFlow()
     override fun createUiStateFlow(): StateFlow<CardGenerationUIState> {
         return combine(
             createGenerationUIStateFlow,
             uiStateForUIFlow,
             errorFlow,
             successMsgFlow
-        ) { stateFlow, uiStateForUI, error, msg ->
+        ) { stateFlow, uiStateForUI, error, msg->
             stateFlow.copy(
                 cardGenerationUIStateForUI = uiStateForUI,
                 errorMessage = error?.genericToast,
@@ -86,7 +96,7 @@ class CardGenerationViewModel @Inject constructor(private val geminiService: Gem
             )
         }.stateIn(
             scope = viewModelScope,
-            started = kotlinx.coroutines.flow.SharingStarted.Lazily,
+            started = SharingStarted.Eagerly,
             initialValue = CardGenerationUIState()
         )
     }

@@ -1,0 +1,108 @@
+package com.hexagraph.pattagobhi.ui.screens.cardgeneration
+
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.hexagraph.pattagobhi.ui.components.AppButton
+import com.hexagraph.pattagobhi.ui.components.AppTextField
+
+@Composable
+fun TopicInputScreen(viewModel: CardGenerationViewModel,
+                     onGenerateClick: () -> Unit){
+    val uiState by viewModel.uiState.collectAsState()
+    TopicInputScreenBase(
+        uiState = uiState.cardGenerationUIStateForUI,
+        onTopicChange = {
+            viewModel.updateUIStateForUI(topic = it)
+        },
+        onEasyQuestionsChange = {
+            viewModel.updateUIStateForUI(easyQuestions = it)
+        },
+        onMediumQuestionsChange = {
+            viewModel.updateUIStateForUI(mediumQuestions = it)
+        },
+        onHardQuestionsChange = {
+            viewModel.updateUIStateForUI(hardQuestions = it)
+        },
+        onGenerateClick = {
+            onGenerateClick()
+        }
+    )
+
+}
+
+@Composable
+private fun TopicInputScreenBase(
+    uiState: CardGenerationUIStateForUI,
+    onTopicChange: (String) -> Unit,
+    onEasyQuestionsChange: (String) -> Unit,
+    onMediumQuestionsChange: (String) -> Unit,
+    onHardQuestionsChange: (String) -> Unit,
+    onGenerateClick: () -> Unit
+) {
+    val scrollState = rememberScrollState()
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+            .verticalScroll(scrollState),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        Text(
+            text = "Generate FlashCards",
+            fontSize = 24.sp,
+            modifier = Modifier.padding(bottom = 16.dp)
+        )
+
+        AppTextField(
+            value = uiState.topic,
+            onValueChange = onTopicChange,
+            outerText = "Topic",
+            placeholderText = "Enter topic",
+            isError = uiState.topic.isEmpty(),
+            errorText = "Topic cannot be empty"
+        )
+
+        AppTextField(
+            value = uiState.easyQuestions,
+            onValueChange = onEasyQuestionsChange,
+            outerText = "Easy Questions",
+            placeholderText = "Enter number of easy questions",
+            isError = !uiState.isEasyQuestionsValid,
+            errorText = "Must be a valid integer"
+        )
+
+        AppTextField(
+            value = uiState.mediumQuestions,
+            onValueChange = onMediumQuestionsChange,
+            outerText = "Medium Questions",
+            placeholderText = "Enter number of medium questions",
+            isError = !uiState.isMediumQuestionsValid,
+            errorText = "Must be a valid integer"
+        )
+
+        AppTextField(
+            value = uiState.hardQuestions,
+            onValueChange = onHardQuestionsChange,
+            outerText = "Hard Questions",
+            placeholderText = "Enter number of hard questions",
+            isError = !uiState.isHardQuestionsValid,
+            errorText = "Must be a valid integer"
+        )
+
+        AppButton(
+            text = "Generate",
+            isEnabled = uiState.topic.isNotEmpty() && uiState.isEasyQuestionsValid && uiState.isMediumQuestionsValid && uiState.isHardQuestionsValid,
+            onClick = onGenerateClick
+        )
+    }
+}
