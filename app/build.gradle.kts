@@ -136,4 +136,7 @@ dependencies {
 
     //Lottie Animation
     implementation(libs.lottie.compose)
+
+    implementation("com.google.accompanist:accompanist-systemuicontroller:0.36.0")
+
 }

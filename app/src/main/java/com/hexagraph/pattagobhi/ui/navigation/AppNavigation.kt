@@ -20,8 +20,7 @@ import com.hexagraph.pattagobhi.ui.screens.authentication.emailVerification.Veri
 import com.hexagraph.pattagobhi.ui.screens.authentication.login.LogInScreen
 import com.hexagraph.pattagobhi.ui.screens.authentication.login.LoginViewModel
 import com.hexagraph.pattagobhi.ui.screens.cardgeneration.MainCardGenerationScreen
-import com.hexagraph.pattagobhi.ui.screens.cardgeneration.TopicInputScreen
-import com.hexagraph.pattagobhi.ui.screens.chat.BotScreen
+import com.hexagraph.pattagobhi.ui.screens.deck.AddCardScreen
 import com.hexagraph.pattagobhi.ui.screens.deck.CardScreen
 import com.hexagraph.pattagobhi.ui.screens.deck.DeckScreen
 import com.hexagraph.pattagobhi.ui.screens.onboarding.OnBoardingScreen
@@ -47,9 +46,9 @@ fun AppNavigation(
         } else Screens.NavOnboardingScreen
     ) {
         composable<Screens.NavHomeRoute> {
-            DeckScreen(onDeckClicked = { deckId ->
-                navController.navigate(AuthenticationNavigation.CardScreen(deckId))
-            }, onButtonClicked = {
+            DeckScreen(onDeckClicked = { deckId, name ->
+                navController.navigate(AuthenticationNavigation.CardScreen(deckId, name))
+            }, onGenerateButtonClicked = {
                 navController.navigate(AuthenticationNavigation.TopicInputScreen)
             })
         }
@@ -90,9 +89,12 @@ fun AppNavigation(
             ForgotPassword(navController = navController)
         }
         composable<AuthenticationNavigation.CardScreen> { backStackEntry ->
-            val deckId = backStackEntry.arguments?.getInt("deckId")?.toInt()
+            val deckId = backStackEntry.arguments?.getInt("deckId")
+            val name = backStackEntry.arguments?.getString("name")
+//            CardScreen(deckId = deckId!!, name = name!!)
+            AddCardScreen(onAddCard = { _, _ ->
 
-            CardScreen(deckId = deckId!!)
+            }, deckId = deckId!!)
         }
         composable<AuthenticationNavigation.TopicInputScreen> {
             MainCardGenerationScreen(snackbarHostState = snackbarHostState)

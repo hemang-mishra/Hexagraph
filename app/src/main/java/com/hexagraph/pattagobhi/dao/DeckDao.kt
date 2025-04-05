@@ -8,6 +8,7 @@ import androidx.room.Query
 import androidx.room.Update
 import com.hexagraph.pattagobhi.Entity.Card
 import com.hexagraph.pattagobhi.Entity.Deck
+import com.hexagraph.pattagobhi.ui.screens.deck.ReviewCount
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -35,5 +36,12 @@ interface DeckDao {
 
     @Delete
     suspend fun deleteDeck(deck: Deck)
+
+    @Query("""
+    SELECT deckId, review, COUNT(*)  as count, nextReview
+    FROM Card 
+    GROUP BY deckId, review
+""")
+    fun getReviewCountsByDeck(): Flow<List<ReviewCount>>
 
 }
