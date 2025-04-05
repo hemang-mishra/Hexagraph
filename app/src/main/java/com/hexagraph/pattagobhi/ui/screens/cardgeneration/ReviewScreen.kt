@@ -51,7 +51,7 @@ import com.hexagraph.pattagobhi.ui.theme.HexagraphTheme
 import com.hexagraph.pattagobhi.util.Review
 
 @Composable
-fun ReviewScreen(viewModel: CardGenerationViewModel) {
+fun ReviewScreen(viewModel: CardGenerationViewModel, goToHomeScreen: () -> Unit) {
     val uiState by viewModel.uiState.collectAsState()
 
     ReviewScreenBase(
@@ -76,7 +76,8 @@ fun ReviewScreen(viewModel: CardGenerationViewModel) {
         goToIndex = { index ->
             viewModel.goToAParticularCard(index)
         },
-        viewModel
+        viewModel,
+        goToHomeScreen
     )
 
 }
@@ -92,7 +93,8 @@ fun ReviewScreenBase(
     onHelpClick: () -> Unit,
     onShowAnswerClick: () -> Unit,
     goToIndex: (Int) -> Unit,
-    viewModel: CardGenerationViewModel
+    viewModel: CardGenerationViewModel,
+    goToHomeScreen: () -> Unit
 ) {
     val verticalPager = rememberPagerState {
         uiState.easyCards.size + uiState.mediumCards.size + uiState.hardCards.size
@@ -101,7 +103,7 @@ fun ReviewScreenBase(
     LaunchedEffect(uiState.reviewScreenUIState.currentIndex) {
         isScrolling = true
         if (verticalPager.currentPage != uiState.reviewScreenUIState.currentIndex) {
-            verticalPager.scrollToPage(uiState.reviewScreenUIState.currentIndex)
+            verticalPager.animateScrollToPage(uiState.reviewScreenUIState.currentIndex)
         }
         isScrolling = false
     }
@@ -160,7 +162,8 @@ fun ReviewScreenBase(
                                     ),
                                     viewModel.nextReviewTime(card.reviewRecord.size, Review.MEDIUM),
                                     viewModel.nextReviewTime(card.reviewRecord.size, Review.EASY)
-                                ), viewModel, card
+                                ), viewModel, card, it,
+                                goToHomeScreen
                             )
                         }
                     }
@@ -427,7 +430,13 @@ fun BottomBarSection(
 }
 
 @Composable
-fun ReviewButtons(times: List<String>, viewModel: CardGenerationViewModel, card: Card) {
+fun ReviewButtons(
+    times: List<String>,
+    viewModel: CardGenerationViewModel,
+    card: Card,
+    cardIdx: Int,
+    goToHomeScreen: () -> Unit
+) {
     val labels = listOf("Hard", "Good", "Easy")
     val backgroundColors = listOf(
         Color(0xAAC68C1D), // mustard yellow with transparency
@@ -457,7 +466,10 @@ fun ReviewButtons(times: List<String>, viewModel: CardGenerationViewModel, card:
                     .background(backgroundColors[i])
                     .border(2.dp, borderColors[i], RoundedCornerShape(16.dp))
                     .clickable {
-                        viewModel.addCard(i, card)
+                        viewModel.addCard(i, card, cardIdx)
+                        if (cardIdx == 0) {
+                            goToHomeScreen()
+                        }
                     }
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
