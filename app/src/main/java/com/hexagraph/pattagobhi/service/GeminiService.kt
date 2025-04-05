@@ -12,12 +12,13 @@ class GeminiService {
     )
 
     suspend fun generateContent(
-        bitmap: Bitmap,
+        bitmap: Bitmap? = null,
         prompt: String
     ): String? {
         return try {
             val response = generativeModel.generateContent(
                 content {
+                    if(bitmap != null)
                     image(bitmap)
                     text(prompt)
                 }

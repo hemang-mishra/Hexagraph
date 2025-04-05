@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
@@ -32,8 +33,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
@@ -195,4 +198,47 @@ fun ChatInputTextField(
             )
         )
     }
+}
+
+
+
+@Composable
+fun BotTextField(modifier: Modifier,value: String, onValueChange: (String) -> Unit, onDone: () -> Unit) {
+    OutlinedTextField(
+        value = value,
+        onValueChange = {onValueChange(it)
+        },
+        placeholder = {
+            Text(
+                text = "Type a message",
+                style = TextStyle(
+                    fontSize = 16.sp,
+                    lineHeight = 21.sp,
+                    fontWeight = FontWeight(400),
+                    color =  Color(0x80EEF6F8),
+                    textDecoration = TextDecoration.None
+                )
+            )
+
+        },
+        keyboardOptions =
+            KeyboardOptions(imeAction = ImeAction.Done),
+        keyboardActions = KeyboardActions(onDone = { onDone()  }),
+        colors = TextFieldDefaults.colors(
+            focusedIndicatorColor = Color(0xFFEEF6F8),
+            unfocusedIndicatorColor =  Color(0x80EEF6F8),
+            disabledIndicatorColor = Color.Transparent,
+            focusedContainerColor = Color.Transparent,
+            unfocusedContainerColor = Color.Transparent,
+            disabledTextColor = Color.Black
+        ),
+        textStyle = TextStyle(
+            fontSize = 16.sp,
+            lineHeight = 21.sp,
+            fontWeight = FontWeight(400),
+            color =  Color(0xFFEEF6F8),
+        ),
+        shape = RoundedCornerShape(16.dp),
+        modifier = modifier
+    )
 }
