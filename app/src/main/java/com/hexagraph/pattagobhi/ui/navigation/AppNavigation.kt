@@ -49,7 +49,7 @@ fun AppNavigation(
             DeckScreen(onDeckClicked = { deckId, name ->
                 navController.navigate(AuthenticationNavigation.CardScreen(deckId, name))
             }, onGenerateButtonClicked = {
-                navController.navigate(AuthenticationNavigation.TopicInputScreen)
+                navController.navigate(AuthenticationNavigation.TopicInputScreen())
             })
         }
         composable<Screens.NavPermissionsScreen> {
@@ -99,7 +99,8 @@ fun AppNavigation(
 //            }, deckId = deckId!!)
         }
         composable<AuthenticationNavigation.TopicInputScreen> {
-            MainCardGenerationScreen(snackbarHostState = snackbarHostState)
+            val topicInputScreenArg = it.toRoute<AuthenticationNavigation.TopicInputScreen>()
+            MainCardGenerationScreen(snackbarHostState = snackbarHostState, deckId = topicInputScreenArg.deckID)
         }
         composable<AuthenticationNavigation.AddCardScreen> { backStackEntry ->
             val deckId = backStackEntry.arguments?.getInt("deckId")
