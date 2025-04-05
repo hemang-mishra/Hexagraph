@@ -34,6 +34,7 @@ data class CardGenerationUIStateForUI(
         get() = hardQuestions.toIntOrNull() != null
 }
 
+
 enum class CurrentScreen {
     TopicInputScreen,
     ReviewScreen,

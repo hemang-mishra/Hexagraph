@@ -14,4 +14,10 @@ class DeckRepository @Inject constructor(
     fun getAllDeck() = deckDao.getAllDeck()
 
     fun getCardByDeckId(deckId: Int) = deckDao.getCardByDeck(deckId)
+
+    suspend fun updateCard(card: Card) = deckDao.updateCard(card)
+
+    suspend fun deleteCard(card: Card) = deckDao.deleteCard(card)
+
+    suspend fun deleteDeck(deck: Deck) = deckDao.deleteDeck(deck)
 }

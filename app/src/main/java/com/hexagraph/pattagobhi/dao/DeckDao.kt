@@ -1,9 +1,11 @@
 package com.hexagraph.pattagobhi.dao
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 import com.hexagraph.pattagobhi.Entity.Card
 import com.hexagraph.pattagobhi.Entity.Deck
 import kotlinx.coroutines.flow.Flow
@@ -24,5 +26,14 @@ interface DeckDao {
     fun getAllDeck(): Flow<List<Deck>>
     @Query("SELECT * FROM card WHERE deckId = :deckId")
     fun getCardByDeck(deckId:Int):Flow<List<Card>>
+
+    @Update
+    suspend fun updateCard(card:Card)
+
+    @Delete
+    suspend fun deleteCard(card:Card)
+
+    @Delete
+    suspend fun deleteDeck(deck: Deck)
 
 }
