@@ -28,7 +28,27 @@ object GeminiPrompts{
                 "Only show the questions\n" +
                 "No unnecessary text"
     }
-
+    fun generateAnswerPrompt(topic: String, question: String, difficulty: String): String{
+        val numberOfWorkds = when(difficulty){
+            "Medium"-> 20
+            "Easy" -> 10
+            "Hard" -> 30
+            else -> 20
+        }
+        return "Topic: $topic\n" +
+                "\n" +
+                "Difficulty: $difficulty" +
+                "\n" +
+                "$question\n" +
+                "\n" +
+                "Answer for this question in $numberOfWorkds to ${numberOfWorkds+5} words.\n" +
+                "\n" +
+                "Explanation should be as simple and accurate as possible\n" +
+                "\n" +
+                "Respond only the answer.\n" +
+                "\n" +
+                "no unnecessary text"
+    }
 }
 
 @Composable
