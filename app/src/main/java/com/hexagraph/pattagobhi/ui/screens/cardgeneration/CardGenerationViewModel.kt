@@ -189,17 +189,13 @@ class CardGenerationViewModel @Inject constructor(
     fun initializeReviewScreen(deckId: Int){
         viewModelScope.launch(Dispatchers.IO) {
             deckDao.getCardByDeck(deckId).collectLatest {
-                val easyCards = it.filter { card -> card.review == Review.EASY }
-                val mediumCards = it.filter { card -> card.review == Review.MEDIUM }
-                val hardCards = it.filter { card -> card.review == Review.HARD }
+                val easyCards = it
+//                val mediumCards = it.filter { card -> card.review == Review.MEDIUM }
+//                val hardCards = it.filter { card -> card.review == Review.HARD }
                 createGenerationUIStateFlow.emit(
                     createGenerationUIStateFlow.value.copy(
                         easyCards = easyCards,
-                        mediumCards = mediumCards,
-                        hardCards = hardCards,
                         easyQuestions = easyCards.map { it.question },
-                        mediumQuestions = mediumCards.map { it.question },
-                        hardQuestions = hardCards.map { it.question },
                         currentScreen = CurrentScreen.ReviewScreen
                     )
                 )

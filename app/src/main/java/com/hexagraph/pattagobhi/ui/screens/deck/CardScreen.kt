@@ -31,7 +31,13 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.hexagraph.pattagobhi.util.Review
 
 @Composable
-fun CardScreen(deckId: Int, name: String, viewModel: CardScreenViewModel = hiltViewModel(), onAddCardClicked:(Int)->Unit) {
+fun CardScreen(
+    deckId: Int,
+    name: String,
+    viewModel: CardScreenViewModel = hiltViewModel(),
+    onAddCardClicked: (Int) -> Unit,
+    onReviewClicked: (Int) -> Unit
+) {
 
     Scaffold { innerPadding ->
         LaunchedEffect(Unit) {
@@ -44,43 +50,32 @@ fun CardScreen(deckId: Int, name: String, viewModel: CardScreenViewModel = hiltV
         val medium = cards.count { it.review == Review.MEDIUM }
         val easy = cards.count { it.review == Review.EASY }
 
-
-        val starterScreen = remember { mutableStateOf(true) }
-        if (starterScreen.value)
-            Box {
-                DeckStatsScreen(name, easy, medium, hard, 0, size)
-                Row(modifier = Modifier.align(Alignment.BottomCenter)) {
-                    Button(
-                        onClick = {
-                            starterScreen.value = false
-                        },
-                        modifier = Modifier
-                            .padding(bottom = 16.dp)
-                            .width(100.dp)
-                    ) {
-                        Text("Study")
-                    }
-                    Button(
-                        onClick = {
-                            onAddCardClicked(deckId)
-                        },
-                        modifier = Modifier
-                            .padding(bottom = 16.dp)
-                            .width(100.dp)
-                    ) {
-                        Text("Add")
-                    }
+        Box {
+            DeckStatsScreen(name, easy, medium, hard, 0, size)
+            Row(modifier = Modifier.align(Alignment.BottomCenter)) {
+                Button(
+                    onClick = {
+                        onReviewClicked(deckId)
+                    },
+                    modifier = Modifier
+                        .padding(bottom = 16.dp)
+                        .width(100.dp)
+                ) {
+                    Text("Review")
                 }
-
-            }else{
-            LazyColumn(modifier = Modifier.padding(innerPadding)) {
-                item {
-                    state.cards.forEach { card ->
-                        Text(card.question)
-                    }
+                Button(
+                    onClick = {
+                        onAddCardClicked(deckId)
+                    },
+                    modifier = Modifier
+                        .padding(bottom = 16.dp)
+                        .width(100.dp)
+                ) {
+                    Text("Add")
                 }
             }
         }
+
     }
 }
 
