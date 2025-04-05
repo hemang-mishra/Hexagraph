@@ -77,7 +77,7 @@ fun MainCardGenerationScreen(
                     Box(modifier = Modifier.fillMaxSize()) {
                         LottieAnimationComposable(
                             modifier = Modifier.fillMaxSize(),
-                            resource = R.raw.loading_animation
+                            resource = R.raw.animation_bird
                         )
                     }
                 }

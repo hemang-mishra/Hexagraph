@@ -185,6 +185,26 @@ class CardGenerationViewModel @Inject constructor(
         }
     }
 
+    fun goToAParticularCard(index: Int){
+        if(index > createGenerationUIStateFlow.value.easyCards.size + createGenerationUIStateFlow.value.mediumCards.size + createGenerationUIStateFlow.value.hardCards.size || index < 0){
+            return
+        }
+        viewModelScope.launch {
+            reviewScreenStateFlow.value = reviewScreenStateFlow.value.copy(
+                currentIndex = index,
+                currentState = CurrentStateOfReviewScreen.OnlyQuestionDisplayed
+            )
+        }
+    }
+
+    fun toggleSpeakerState(isSpeakerOn: Boolean){
+        viewModelScope.launch {
+            reviewScreenStateFlow.value = reviewScreenStateFlow.value.copy(
+                isTextToSpeechActive = isSpeakerOn
+            )
+        }
+    }
+
     //Initialization for review
     fun initializeReviewScreen(deckId: Int){
         viewModelScope.launch(Dispatchers.IO) {

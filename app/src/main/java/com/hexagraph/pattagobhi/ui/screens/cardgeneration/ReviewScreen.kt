@@ -15,6 +15,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.VolumeOff
+import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Menu
@@ -54,15 +55,24 @@ fun ReviewScreen(viewModel: CardGenerationViewModel) {
     ReviewScreenBase(
         uiState = uiState,
         onMenuClick = {},
-        onBackClick = {},
-        onMuteClick = {},
+        onBackClick = {
+            viewModel.goToAParticularCard(uiState.reviewScreenUIState.currentIndex-1)
+                      },
+        onMuteClick = {
+            viewModel.toggleSpeakerState(!uiState.reviewScreenUIState.isTextToSpeechActive)
+        },
         onMicClick = {},
-        onCloseClick = {},
+        onCloseClick = {
+            viewModel.goToAParticularCard(uiState.reviewScreenUIState.currentIndex+1)
+        },
         onHelpClick = {
             viewModel.switchScreen(CurrentScreen.ChatScreen)
         },
         onShowAnswerClick = {
             viewModel.switchReviewScreenState(CurrentStateOfReviewScreen.AnswerIsDisplayed)
+        },
+        goToIndex = { index ->
+            viewModel.goToAParticularCard(index)
         }
     )
 
@@ -76,31 +86,40 @@ fun ReviewScreenBase(uiState: CardGenerationUIState,
                      onMicClick: () -> Unit,
                      onCloseClick: () -> Unit,
                      onHelpClick: () -> Unit,
-                     onShowAnswerClick: ()->Unit
+                     onShowAnswerClick: ()->Unit,
+                     goToIndex: (Int)-> Unit
                      ){
-    var currentIndex = 0
-    val lazyColumState = rememberLazyListState()
     val verticalPager = rememberPagerState {
         uiState.easyCards.size + uiState.mediumCards.size + uiState.hardCards.size
     }
+    var isScrolling = false
+    LaunchedEffect(uiState.reviewScreenUIState.currentIndex) {
+        isScrolling = true
+        if(verticalPager.currentPage != uiState.reviewScreenUIState.currentIndex){
+            verticalPager.scrollToPage(uiState.reviewScreenUIState.currentIndex)
+        }
+        isScrolling = false
+    }
+    LaunchedEffect(verticalPager.currentPage) {
+        if(verticalPager.currentPage != uiState.reviewScreenUIState.currentIndex)
+            goToIndex(verticalPager.currentPage)
+    }
     val currentScreenSize = getScreenHeightInDp()
-//    if(!lazyColumState.isScrollInProgress)
-//    LaunchedEffect(currentIndex, lazyColumState.firstVisibleItemScrollOffset) {
-//        lazyColumState.scrollToItem(currentIndex)
-//    }
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
     ) {
-        TopHeaderSection(onMenuClick,onBackClick,onMuteClick,onCloseClick)
+        TopHeaderSection(isSpeakerActive = uiState.reviewScreenUIState.isTextToSpeechActive,
+            onMenuClick,onBackClick,onMuteClick,onCloseClick)
         CardsLeftIndicator(
-            cardsLeftText = "${uiState.easyCards.size + uiState.mediumCards.size + uiState.hardCards.size-currentIndex} cards left",
+            cardsLeftText = "${uiState.easyCards.size + uiState.mediumCards.size + uiState.hardCards.size-verticalPager.currentPage - 1} cards left",
             modifier = Modifier.padding(16.dp)
         )
         VerticalPager(state = verticalPager,
             modifier = Modifier.fillMaxWidth()) {
-            currentIndex = it
+//            if(uiState.reviewScreenUIState.currentIndex != it && it == verticalPager.currentPage && !isScrolling)
+//                goToIndex(it)
             val card = uiState.easyCards.getOrNull(it)
                 ?: uiState.mediumCards.getOrNull(it - uiState.easyCards.size)
                 ?: uiState.hardCards.getOrNull(it - uiState.easyCards.size - uiState.mediumCards.size)
@@ -192,6 +211,7 @@ fun CardsLeftIndicator(
 
 @Composable
 fun TopHeaderSection(
+    isSpeakerActive: Boolean,
     onMenuClick: () -> Unit,
     onBackClick: () -> Unit,
     onMuteClick: () -> Unit,
@@ -233,7 +253,7 @@ fun TopHeaderSection(
 
             IconButton(onClick = onMuteClick) {
                 Icon(
-                    imageVector = Icons.AutoMirrored.Filled.VolumeOff,
+                    imageVector = if(isSpeakerActive) Icons.AutoMirrored.Filled.VolumeOff else Icons.AutoMirrored.Filled.VolumeUp,
                     contentDescription = "Mute",
                     tint = iconTint,
                     modifier = Modifier.size(iconSize)
@@ -452,16 +472,27 @@ fun ReviewScreenPreview(){
     HexagraphTheme {
         ReviewScreenBase(
             uiState = CardGenerationUIState(
-                easyQuestions = listOf( "What is your name?", "What is your age?", "What is your favorite color?"),
-                easyCards = listOf(Card(question = "What is your name?", answer = "John Doe", deckId = 2, )),
-                )
-            ,
+                easyQuestions = listOf(
+                    "What is your name?",
+                    "What is your age?",
+                    "What is your favorite color?"
+                ),
+                easyCards = listOf(
+                    Card(
+                        question = "What is your name?",
+                        answer = "John Doe",
+                        deckId = 2,
+                    )
+                ),
+            ),
             onMenuClick = {},
             onBackClick = { },
-            onMuteClick = {  },
-            onMicClick = {  },
-            onCloseClick = {  },
-            onHelpClick = {}
-        ) { }
+            onMuteClick = { },
+            onMicClick = { },
+            onCloseClick = { },
+            onHelpClick = {},
+            goToIndex = {},
+            onShowAnswerClick = {  }
+        ) 
     }
 }
