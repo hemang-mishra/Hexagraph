@@ -11,8 +11,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -195,7 +197,9 @@ fun DeckScreen(
                     if (expanded.value) expanded.value = false
                 }
         ) {
+
             item {
+                Spacer(modifier = Modifier.height(8.dp))
 //                DashboardScreenTitle()
                 decks.forEach { deck ->
                     DeckCard(deck = deck, onClick = {
@@ -213,7 +217,7 @@ fun DeckCard(deck: DeckUI, onClick: () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 6.dp)
+            .padding(horizontal = 12.dp, vertical = 6.dp)
             .clickable(onClick = onClick),
         colors = CardDefaults.cardColors(containerColor = Color(0xFF1E1E1E)),
         elevation = CardDefaults.cardElevation(4.dp)
@@ -230,15 +234,15 @@ fun DeckCard(deck: DeckUI, onClick: () -> Unit) {
             Row {
                 Text(
                     deck.easyCount.toString(),
-                    color = Color.Blue,
+                    color = Color(0xFF77B3DD),
                     modifier = Modifier.padding(end = 8.dp)
                 )
                 Text(
                     deck.mediumCount.toString(),
-                    color = Color.Red,
+                    color = Color(0xFFDE596C),
                     modifier = Modifier.padding(end = 8.dp)
                 )
-                Text(deck.hardCount.toString(), color = Color.Green)
+                Text(deck.hardCount.toString(), color = Color(0xFF8BCE5A))
             }
         }
     }
