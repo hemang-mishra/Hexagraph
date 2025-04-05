@@ -5,23 +5,18 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
-import androidx.compose.animation.with
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
 import com.hexagraph.pattagobhi.R
 import com.hexagraph.pattagobhi.ui.components.LottieAnimationComposable
-import com.hexagraph.pattagobhi.ui.components.Wait
 import com.hexagraph.pattagobhi.ui.screens.chat.BotScreen
 
 @OptIn(ExperimentalAnimationApi::class)
@@ -31,32 +26,11 @@ fun MainCardGenerationScreen(
     snackbarHostState: SnackbarHostState
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    Scaffold {padding->
-        AnimatedContent(
-            modifier = Modifier.padding(padding),
-            targetState = uiState.currentScreen,
-            transitionSpec = {
-                fadeIn() togetherWith fadeOut()
-            }
-        ) { targetScreen ->
-            when (targetScreen) {
-                CurrentScreen.TopicInputScreen -> {
-                    TopicInputScreen(
-                        viewModel = viewModel,
-                        onGenerateClick = {
-                            viewModel.generateQuestions(
-                                uiState.cardGenerationUIStateForUI.topic,
-                                uiState.cardGenerationUIStateForUI.easyQuestions.toInt(),
-                                uiState.cardGenerationUIStateForUI.mediumQuestions.toInt(),
-                                uiState.cardGenerationUIStateForUI.hardQuestions.toInt(),
-                            )
-                        }
-                    )
-                }
+
 
     Scaffold(
         modifier = Modifier.fillMaxSize()
-    ) {padding->
+    ) { padding ->
         AnimatedContent(
             targetState = uiState.currentScreen,
             transitionSpec = {
@@ -84,9 +58,12 @@ fun MainCardGenerationScreen(
                 }
 
                 CurrentScreen.ChatScreen -> {
-                    BotScreen(initialPrompt = uiState.prompt,
+                    BotScreen(
+                        initialPrompt = uiState.prompt,
                         onGoBack = {
-                            viewModel.switchScreen(uiState.previousScreen?:CurrentScreen.ChatScreen)
+                            viewModel.switchScreen(
+                                uiState.previousScreen ?: CurrentScreen.ChatScreen
+                            )
                         })
                 }
 

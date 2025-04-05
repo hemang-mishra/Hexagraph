@@ -453,7 +453,7 @@ fun ReviewScreenPreview(){
         ReviewScreenBase(
             uiState = CardGenerationUIState(
                 easyQuestions = listOf( "What is your name?", "What is your age?", "What is your favorite color?"),
-                easyCards = listOf(Card(question = "What is your name?", answer = "John Doe", deckId = 2, review = "")),
+                easyCards = listOf(Card(question = "What is your name?", answer = "John Doe", deckId = 2, )),
                 )
             ,
             onMenuClick = {},

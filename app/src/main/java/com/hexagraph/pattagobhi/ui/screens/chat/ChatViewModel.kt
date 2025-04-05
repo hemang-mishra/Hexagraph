@@ -72,7 +72,8 @@ class ChatViewModel @Inject constructor() : BaseViewModel<ChatUIState>() {
     }
 
     fun onClick(snackbarHostState: SnackbarHostState, prompt: String){
-        sendPrompt(prompt)
+        if(prompt.isNotEmpty())
+            sendPrompt(prompt)
     }
 
     fun changeScrollState(isScrollEnabled: Boolean) {
