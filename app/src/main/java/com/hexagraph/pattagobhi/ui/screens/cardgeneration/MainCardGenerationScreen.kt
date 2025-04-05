@@ -5,14 +5,11 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
-import androidx.compose.animation.with
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -20,7 +17,6 @@ import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.hexagraph.pattagobhi.R
 import com.hexagraph.pattagobhi.ui.components.LottieAnimationComposable
-import com.hexagraph.pattagobhi.ui.components.Wait
 import com.hexagraph.pattagobhi.ui.screens.chat.BotScreen
 
 @OptIn(ExperimentalAnimationApi::class)
@@ -30,13 +26,17 @@ fun MainCardGenerationScreen(
     snackbarHostState: SnackbarHostState
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    Scaffold {padding->
+
+
+    Scaffold(
+        modifier = Modifier.fillMaxSize()
+    ) { padding ->
         AnimatedContent(
-            modifier = Modifier.padding(padding),
             targetState = uiState.currentScreen,
             transitionSpec = {
                 fadeIn() togetherWith fadeOut()
-            }
+            },
+            modifier = Modifier.padding(padding)
         ) { targetScreen ->
             when (targetScreen) {
                 CurrentScreen.TopicInputScreen -> {
@@ -54,11 +54,17 @@ fun MainCardGenerationScreen(
                 }
 
                 CurrentScreen.ReviewScreen -> {
-                    ReviewScreen(uiState)
+                    ReviewScreen(viewModel)
                 }
 
                 CurrentScreen.ChatScreen -> {
-                    BotScreen()
+                    BotScreen(
+                        initialPrompt = uiState.prompt,
+                        onGoBack = {
+                            viewModel.switchScreen(
+                                uiState.previousScreen ?: CurrentScreen.ChatScreen
+                            )
+                        })
                 }
 
                 CurrentScreen.Loading -> {

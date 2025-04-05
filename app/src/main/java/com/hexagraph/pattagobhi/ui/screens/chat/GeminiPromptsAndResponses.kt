@@ -49,6 +49,18 @@ object GeminiPrompts{
                 "\n" +
                 "no unnecessary text"
     }
+    fun generateHelpPrompt(answer: String, question: String): String{
+        return "Question : $question\n" +
+                "\n" +
+                "Answer : $answer.\n" +
+                "\n" +
+                "Elaborate your answer. Explain it like explaining to a child. Mention specific term definitions as well.\n" +
+                "\n" +
+                "Use between 100 to 150 words.\n" +
+                "\n" +
+                "No unnecessary text. Answer and text only."
+    }
+
 }
 
 @Composable

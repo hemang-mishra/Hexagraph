@@ -1,6 +1,7 @@
 package com.hexagraph.pattagobhi.ui.screens.cardgeneration
 
 import com.hexagraph.pattagobhi.Entity.Card
+import com.hexagraph.pattagobhi.ui.screens.chat.GeminiPrompts
 
 data class CardGenerationUIState(
     val easyQuestions: List<String> = emptyList(),
@@ -13,8 +14,20 @@ data class CardGenerationUIState(
     val msgFlow: String? = null,
     val cardGenerationUIStateForUI: CardGenerationUIStateForUI = CardGenerationUIStateForUI(),
     val currentScreen: CurrentScreen = CurrentScreen.TopicInputScreen,
-    val previousScreen: CurrentScreen? = null
-)
+    val previousScreen: CurrentScreen? = null,
+    val reviewScreenUIState: ReviewScreenUIState = ReviewScreenUIState()
+){
+    val prompt: String
+        get() {
+            val index = reviewScreenUIState.currentIndex
+            val currentCard = easyCards.getOrNull(index)
+                ?: mediumCards.getOrNull(index+ easyCards.size)
+                ?: hardCards.getOrNull(index+ easyCards.size + mediumCards.size)
+            if(currentCard != null)
+            return GeminiPrompts.generateHelpPrompt(answer = currentCard.answer, question = currentCard.question)
+            else return ""
+        }
+}
 
 data class CardGenerationUIStateForUI(
     val topic: String = "",
@@ -34,10 +47,24 @@ data class CardGenerationUIStateForUI(
         get() = hardQuestions.toIntOrNull() != null
 }
 
+data class ReviewScreenUIState(
+    val currentIndex: Int = 0,
+    val currentState : CurrentStateOfReviewScreen = CurrentStateOfReviewScreen.OnlyQuestionDisplayed,
+    val feedbackText: String? = null,
+    val voiceText: String? = null
+)
 
 enum class CurrentScreen {
     TopicInputScreen,
     ReviewScreen,
     ChatScreen,
     Loading
+}
+
+enum class CurrentStateOfReviewScreen{
+    OnlyQuestionDisplayed,
+    RecordingInProgress,
+    FeedbackInProgress,
+    AnswerIsDisplayed,
+    AnswerIsDisplayedWithFeedback,
 }

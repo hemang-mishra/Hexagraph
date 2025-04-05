@@ -169,18 +169,31 @@ class CardGenerationViewModel @Inject constructor() :
         )
     }
 
+    //Review Screen codes
+    private val reviewScreenStateFlow = MutableStateFlow(ReviewScreenUIState())
+
+    fun switchReviewScreenState(currentStateOfReviewScreen: CurrentStateOfReviewScreen){
+        viewModelScope.launch {
+            reviewScreenStateFlow.value = reviewScreenStateFlow.value.copy(
+                currentState = currentStateOfReviewScreen
+            )
+        }
+    }
+
     override val uiState: StateFlow<CardGenerationUIState> = createUiStateFlow()
     override fun createUiStateFlow(): StateFlow<CardGenerationUIState> {
         return combine(
             createGenerationUIStateFlow,
             uiStateForUIFlow,
             errorFlow,
-            successMsgFlow
-        ) { stateFlow, uiStateForUI, error, msg ->
+            successMsgFlow,
+            reviewScreenStateFlow
+        ) { stateFlow, uiStateForUI, error, msg, reviewFlow->
             stateFlow.copy(
                 cardGenerationUIStateForUI = uiStateForUI,
                 errorMessage = error?.genericToast,
-                msgFlow = msg
+                msgFlow = msg,
+                reviewScreenUIState = reviewFlow
             )
         }.stateIn(
             scope = viewModelScope,
