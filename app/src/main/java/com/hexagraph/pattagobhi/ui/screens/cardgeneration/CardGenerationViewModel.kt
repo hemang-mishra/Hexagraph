@@ -72,7 +72,7 @@ class CardGenerationViewModel @Inject constructor(
         }
     }
 
-    fun generateQuestions(topic: String, easyCount: Int, mediumCount: Int, hardCount: Int) {
+    fun generateQuestions(topic: String, easyCount: Int, mediumCount: Int, hardCount: Int,deckId: Int) {
         viewModelScope.launch {
             createGenerationUIStateFlow.value =
                 createGenerationUIStateFlow.value.copy(currentScreen = CurrentScreen.Loading)
@@ -99,7 +99,7 @@ class CardGenerationViewModel @Inject constructor(
                         hardQuestions = hardQuestions,
                         errorMessage = null
                     )
-                    fetchAnswers()
+                    fetchAnswers(deckId)
                 } else {
                     emitError(ResponseError.UNKNOWN)
                 }
@@ -109,7 +109,7 @@ class CardGenerationViewModel @Inject constructor(
         }
     }
 
-    fun fetchAnswers() {
+    fun fetchAnswers(deckId: Int) {
         viewModelScope.launch {
 //            createGenerationUIStateFlow.value =
 //                createGenerationUIStateFlow.value.copy(currentScreen = CurrentScreen.Loading)
@@ -128,7 +128,7 @@ class CardGenerationViewModel @Inject constructor(
                         val response = geminiService.generateContent(prompt = prompt)
                         if (response != null) {
                             Card(
-                                deckId = createGenerationUIStateFlow.value.cardGenerationUIStateForUI.deck.id,
+                                deckId = deckId,
                                 question = question,
                                 answer = response,
                                 review = Review.EASY
@@ -149,7 +149,7 @@ class CardGenerationViewModel @Inject constructor(
                         val response = geminiService.generateContent(prompt = prompt)
                         if (response != null) {
                             Card(
-                                deckId = createGenerationUIStateFlow.value.cardGenerationUIStateForUI.deck.id,
+                                deckId = deckId,
                                 question = question,
                                 answer = response,
                                 review = Review.MEDIUM
@@ -170,7 +170,7 @@ class CardGenerationViewModel @Inject constructor(
                         val response = geminiService.generateContent(prompt = prompt)
                         if (response != null) {
                             Card(
-                                deckId = createGenerationUIStateFlow.value.cardGenerationUIStateForUI.deck.id,
+                                deckId = deckId,
                                 question = question,
                                 answer = response,
                                 review = Review.HARD
@@ -270,11 +270,15 @@ class CardGenerationViewModel @Inject constructor(
 
     //Initialization for review
     fun initializeReviewScreen(deckId: Int) {
+        val currentTime = getCurrentTime()
         viewModelScope.launch(Dispatchers.IO) {
             deckDao.getCardByDeck(deckId).collectLatest {
-                val easyCards = it.filter { card -> card.review == Review.EASY }
-                val mediumCards = it.filter { card -> card.review == Review.MEDIUM }
-                val hardCards = it.filter { card -> card.review == Review.HARD }
+                val easyCards =
+                    it.filter { card -> card.review == Review.EASY && card.nextReview <= currentTime }
+                val mediumCards =
+                    it.filter { card -> card.review == Review.MEDIUM && card.nextReview <= currentTime }
+                val hardCards =
+                    it.filter { card -> card.review == Review.HARD && card.nextReview <= currentTime }
                 createGenerationUIStateFlow.emit(
                     createGenerationUIStateFlow.value.copy(
                         easyCards = easyCards,

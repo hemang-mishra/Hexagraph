@@ -20,7 +20,9 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -39,8 +41,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 @Composable
 fun TopicInputScreen(
     viewModel: CardGenerationViewModel,
-    onGenerateClick: () -> Unit
+    onGenerateClick: (Int) -> Unit
 ) {
+    val deckId = remember { mutableIntStateOf(0) }
     val bottomSheetState = rememberModalBottomSheetState()
     var isBottomSheetVisible by rememberSaveable { mutableStateOf(false) }
     val decks by viewModel.listOfDecks.collectAsState(emptyList())
@@ -54,7 +57,8 @@ fun TopicInputScreen(
         onGenerateClick = onGenerateClick,
         onClickTextField = {
             isBottomSheetVisible = true
-        }
+        },
+        deckId = deckId.value
     )
     if(isBottomSheetVisible){
         DeckSelectionBottomSheet(
@@ -62,6 +66,7 @@ fun TopicInputScreen(
             decks = decks,
             onDeckSelected = {
                 viewModel.selectDeck(it)
+                deckId.value = it.id
                 isBottomSheetVisible = false
             }
         ) {
@@ -77,8 +82,9 @@ private fun TopicInputScreenBase(
     onEasyQuestionsChange: (String) -> Unit,
     onMediumQuestionsChange: (String) -> Unit,
     onHardQuestionsChange: (String) -> Unit,
-    onGenerateClick: () -> Unit,
-    onClickTextField: () -> Unit
+    onGenerateClick: (Int) -> Unit,
+    onClickTextField: () -> Unit,
+    deckId:Int
 ) {
     val scrollState = rememberScrollState()
     val localFocusManager = LocalFocusManager.current
@@ -159,7 +165,9 @@ private fun TopicInputScreenBase(
 
         AppTextField(
             value = uiState.deck.name,
-            onValueChange = {},
+            onValueChange = {
+
+            },
             outerText = "Deck",
             placeholderText = "Select a deck",
             icon = Icons.Default.Folder,
@@ -177,8 +185,8 @@ private fun TopicInputScreenBase(
             isEnabled = uiState.topic.isNotEmpty() &&
                     uiState.isEasyQuestionsValid &&
                     uiState.isMediumQuestionsValid &&
-                    uiState.isHardQuestionsValid,
-            onClick = onGenerateClick
+                    uiState.isHardQuestionsValid&& deckId!=0,
+            onClick = { onGenerateClick(deckId) }
         )
     }
 }
