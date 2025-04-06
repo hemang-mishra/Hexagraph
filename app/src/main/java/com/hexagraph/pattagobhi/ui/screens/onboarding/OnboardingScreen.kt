@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -26,6 +27,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -48,7 +50,7 @@ fun OnBoardingScreen(navController: NavController) {
                 .fillMaxSize()
                 .padding(it)
         ) {
-            Column(modifier = Modifier.fillMaxWidth()) {
+            Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.End) {
                 Spacer(modifier = Modifier.height(16.dp))
                 Logo(
                     modifier = Modifier.padding(start = 16.dp)
@@ -95,11 +97,11 @@ fun OnBoardingScreen(navController: NavController) {
 private fun Logo(modifier: Modifier) {
 
     Image(
-        painter = painterResource(id = R.drawable.bird_icon_bg_remove),
+        painter = painterResource(id = R.drawable.owl_white),
         contentDescription = null,
         modifier = modifier
             .padding(1.dp)
-            .size(100.dp)
+            .size(80.dp)
     )
 }
 
@@ -110,9 +112,8 @@ private fun ImageGroupS1(modifier: Modifier) {
         painter = painterResource(id = R.drawable.welcome_splash),
         contentDescription = null,
         modifier = modifier
-            .padding(1.dp)
-            .width(245.dp)
-            .height(206.dp)
+            .padding(16.dp)
+            .clip(RoundedCornerShape(20.dp))
     )
 }
 
@@ -135,7 +136,9 @@ private fun GroupCenterS2(modifier: Modifier) {
         Image(
             painter = painterResource(id = R.drawable.welcome_splash),
             contentDescription = null,
-            modifier = Modifier.align(Alignment.Center)
+            modifier = modifier
+                .padding(16.dp)
+                .clip(RoundedCornerShape(20.dp))
         )
     }
 }
@@ -147,10 +150,9 @@ private fun GroupCenterS3(modifier: Modifier) {
         Image(
             painter = painterResource(id = R.drawable.welcome_splash),
             contentDescription = null,
-            modifier = Modifier
-                .align(Alignment.Center)
-                .height(250.dp)
-                .width(300.dp)
+            modifier = modifier
+                .padding(16.dp)
+                .clip(RoundedCornerShape(20.dp))
         )
     }
 }

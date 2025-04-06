@@ -222,7 +222,7 @@ fun LogInScreen(viewModel: LoginViewModel = hiltViewModel(), navController: NavC
             ) {
                 Spacer(modifier = Modifier.fillMaxHeight(0.07f))
                 Image(
-                    painter = painterResource(id = R.drawable.bird_icon_bg_remove),
+                    painter = painterResource(id = R.drawable.owl_white),
                     contentDescription = stringResource(R.string.logo_name),
                     colorFilter = ColorFilter.tint(Color(0xffeef6f8)),
                     modifier = Modifier
