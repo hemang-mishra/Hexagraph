@@ -18,21 +18,29 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.VerticalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.VolumeOff
 import androidx.compose.material.icons.automirrored.filled.VolumeUp
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.QuestionMark
-import androidx.compose.material.icons.filled.VolumeOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -41,19 +49,23 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
@@ -61,8 +73,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import com.hexagraph.pattagobhi.Entity.Card
-import com.hexagraph.pattagobhi.R
 import com.hexagraph.pattagobhi.util.Review
+import dev.jeziellago.compose.markdowntext.MarkdownText
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -99,10 +111,13 @@ fun ReviewScreen(viewModel: CardGenerationViewModel, goToHomeScreen: () -> Unit)
             isReviewBottomSheetVisible = true
         },
         viewModel = viewModel,
-        goToHomeScreen = goToHomeScreen
+        goToHomeScreen = goToHomeScreen,
+        onSpeechTextChange = {
+            viewModel.updateVoiceText(it)
+        }
     )
 
-    if(isReviewBottomSheetVisible){
+    if (isReviewBottomSheetVisible) {
         FeedbackBottomSheet(
             sheetState = sheetState,
             response = uiState.reviewScreenUIState.feedbackText,
@@ -127,7 +142,8 @@ fun ReviewScreenBase(
     onShowAnswerClick: () -> Unit,
     goToIndex: (Int) -> Unit,
     viewModel: CardGenerationViewModel,
-    goToHomeScreen: () -> Unit
+    goToHomeScreen: () -> Unit,
+    onSpeechTextChange: (String) -> Unit
 ) {
     val verticalPager = rememberPagerState {
         uiState.easyCards.size + uiState.mediumCards.size + uiState.hardCards.size
@@ -181,7 +197,8 @@ fun ReviewScreenBase(
                             shouldShowAnswer = if (uiState.reviewScreenUIState.currentState == CurrentStateOfReviewScreen.AnswerIsDisplayed ||
                                 uiState.reviewScreenUIState.currentState == CurrentStateOfReviewScreen.AnswerIsDisplayedWithFeedback
                             ) true else false,
-                            onSpeechTextEnd = onSpeechEnd
+                            onSpeechTextEnd = onSpeechEnd,
+                            onSpeechTextChange = onSpeechTextChange
                         )
                         if (uiState.reviewScreenUIState.currentState == CurrentStateOfReviewScreen.OnlyQuestionDisplayed)
                             BottomBarSection(
@@ -336,17 +353,17 @@ fun MainCardSection(
     feedbackText: String,
     voiceText: String?,
     onSpeechTextEnd: () -> Unit,
+    onSpeechTextChange: (String) -> Unit,
     onHelpClick: () -> Unit,
     onMicClick: () -> Unit,
     shouldShowAnswer: Boolean,
     modifier: Modifier = Modifier,
-    cardBackgroundColor: Color = Color(0xFF393C3F),
+    cardBackgroundColor: Color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f),
     textColor: Color = MaterialTheme.colorScheme.onPrimaryContainer,
     iconTint: Color = Color.Blue,
     iconSize: Dp = 48.dp,
     questionTextStyle: TextStyle = MaterialTheme.typography.titleMedium,
 ) {
-    var speechText by remember { mutableStateOf("Your speech will appear here") }
 
     Card(
         modifier = modifier
@@ -356,7 +373,9 @@ fun MainCardSection(
         shape = RoundedCornerShape(12.dp),
     ) {
         Box(
-            modifier = Modifier.fillMaxSize().border(2.dp, Color.White.copy(alpha = 0.2f), shape = RoundedCornerShape(12.dp)),
+            modifier = Modifier
+                .fillMaxSize()
+                .border(2.dp, Color.White.copy(alpha = 0.2f), shape = RoundedCornerShape(12.dp)),
         ) {
             // Scrollable Column for content
             Column(
@@ -370,18 +389,20 @@ fun MainCardSection(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(
-                        modifier = Modifier.fillMaxWidth(0.75f).padding(top = 8.dp),
+                        modifier = Modifier
+                            .fillMaxWidth(0.75f)
+                            .padding(top = 8.dp),
                         text = questionText,
                         style = questionTextStyle,
                         color = MaterialTheme.colorScheme.onPrimaryContainer
                     )
-                    IconButton(onClick = onHelpClick, colors = IconButtonDefaults.iconButtonColors(containerColor = Color(0xFF5A6A79))) {
-                        Icon(
-                            imageVector = Icons.Default.QuestionMark,
-                            modifier = Modifier.size(20.dp),
-                            contentDescription = null
-                        )
-                    }
+//                    IconButton(onClick = onHelpClick, colors = IconButtonDefaults.iconButtonColors(containerColor = Color(0xFF5A6A79))) {
+//                        Icon(
+//                            imageVector = Icons.Default.QuestionMark,
+//                            modifier = Modifier.size(20.dp),
+//                            contentDescription = null
+//                        )
+//                    }
                 }
 
                 HorizontalDivider(
@@ -392,40 +413,41 @@ fun MainCardSection(
 
                 // Additional content can go here or leave blank as per current design
                 if (shouldShowAnswer) {
+                    MarkdownText(
+                        markdown = answerText,
+                        style = questionTextStyle,
+                        syntaxHighlightColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f),
+                        syntaxHighlightTextColor = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                } else
                     Text(
-                        text = answerText,
+                        text = voiceText ?: "",
                         style = questionTextStyle,
                         color = MaterialTheme.colorScheme.onPrimaryContainer
                     )
-                    Spacer(Modifier.height(30.dp))
-                    Text(
-                        text = feedbackText,
-                        style = questionTextStyle,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
-                    )
-                }
-                Text(
-                    text = speechText,
-                    style = questionTextStyle,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer
-                )
+                Spacer(Modifier.height(150.dp))
             }
 
             // Mic/Play Icon at Bottom Center
-            RecordVoice(onSpeechTextChanged = {
-                speechText = it
-            },
+
+            RecordVoice(
+                onSpeechTextChanged = {
+                    onSpeechTextChange(it)
+                },
                 onSpeechEnd = {
                     onSpeechTextEnd()
-                })
+                },
+            )
         }
     }
 }
 
 @Composable
-fun RecordVoice(onSpeechTextChanged: (String) -> Unit, onSpeechEnd: ()->Unit) {
+fun RecordVoice(
+    onSpeechTextChanged: (String) -> Unit, onSpeechEnd: () -> Unit
+) {
     RequestAudioPermission()
-    var isListening by remember { mutableStateOf(false) }
+    var isListening by rememberSaveable { mutableStateOf(false) }
 
     val context = LocalContext.current
     val speechRecognizer = remember { SpeechRecognizer.createSpeechRecognizer(context) }
@@ -600,7 +622,7 @@ fun ReviewButtons(
     val borderColors = listOf(
         Color(0xFFEA3860),
         Color(0xFFE6B800),
-       // Color(0xFF88D957),
+        // Color(0xFF88D957),
         Color(0xFFA2C3DB)
     )
 
