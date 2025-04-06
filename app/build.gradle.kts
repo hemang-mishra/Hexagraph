@@ -105,33 +105,33 @@ dependencies {
 
     //Markdown
     implementation("com.github.jeziellago:compose-markdown:0.5.7")
-    // The following line is optional, as the core library is included indirectly by camera-camera2
-    implementation(libs.androidx.camera.core)
-    implementation(libs.androidx.camera.camera2)
-    // If you want to additionally use the CameraX Lifecycle library
-    implementation(libs.androidx.camera.lifecycle)
-    // If you want to additionally use the CameraX VideoCapture library
-    implementation(libs.androidx.camera.video)
-    // If you want to additionally use the CameraX View class
-    implementation(libs.androidx.camera.view)
-    // If you want to additionally add CameraX ML Kit Vision Integration
-    implementation(libs.androidx.camera.mlkit.vision)
-    // If you want to additionally use the CameraX Extensions library
-    implementation(libs.androidx.camera.extensions)
+//    // The following line is optional, as the core library is included indirectly by camera-camera2
+//    implementation(libs.androidx.camera.core)
+//    implementation(libs.androidx.camera.camera2)
+//    // If you want to additionally use the CameraX Lifecycle library
+//    implementation(libs.androidx.camera.lifecycle)
+//    // If you want to additionally use the CameraX VideoCapture library
+//    implementation(libs.androidx.camera.video)
+//    // If you want to additionally use the CameraX View class
+//    implementation(libs.androidx.camera.view)
+//    // If you want to additionally add CameraX ML Kit Vision Integration
+//    implementation(libs.androidx.camera.mlkit.vision)
+//    // If you want to additionally use the CameraX Extensions library
+//    implementation(libs.androidx.camera.extensions)
 
 
-    implementation(libs.tensorflow.lite.task.vision)
-    implementation(libs.tensorflow.lite.gpu.delegate.plugin)
-    implementation(libs.tensorflow.lite.gpu)
-    implementation(libs.tensorflow.lite)
-
-    implementation(libs.face.detection)
-    implementation(libs.play.services.mlkit.face.detection)
-
-    //Web3j
-    implementation(libs.web3j.core)
-    implementation(libs.web3j.crypto)
-    implementation(libs.web3j.utils)
+//    implementation(libs.tensorflow.lite.task.vision)
+//    implementation(libs.tensorflow.lite.gpu.delegate.plugin)
+//    implementation(libs.tensorflow.lite.gpu)
+//    implementation(libs.tensorflow.lite)
+//
+//    implementation(libs.face.detection)
+//    implementation(libs.play.services.mlkit.face.detection)
+//
+//    //Web3j
+//    implementation(libs.web3j.core)
+//    implementation(libs.web3j.crypto)
+//    implementation(libs.web3j.utils)
 
     implementation(libs.androidx.material.icons.extended)
 
