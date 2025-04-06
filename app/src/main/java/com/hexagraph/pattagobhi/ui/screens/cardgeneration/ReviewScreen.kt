@@ -161,6 +161,7 @@ fun ReviewScreenBase(
             goToIndex(verticalPager.currentPage)
     }
     val currentScreenSize = getScreenHeightInDp()
+    val totalCards = uiState.easyCards.size + uiState.mediumCards.size + uiState.hardCards.size
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -214,7 +215,8 @@ fun ReviewScreenBase(
                                     viewModel.nextReviewTime(card.reviewRecord.size, Review.MEDIUM),
                                     viewModel.nextReviewTime(card.reviewRecord.size, Review.EASY)
                                 ), viewModel, card, it,
-                                goToHomeScreen
+                                goToHomeScreen,
+                                totalCards = totalCards
                             )
                         }
                     }
@@ -610,7 +612,8 @@ fun ReviewButtons(
     viewModel: CardGenerationViewModel,
     card: Card,
     cardIdx: Int,
-    goToHomeScreen: () -> Unit
+    goToHomeScreen: () -> Unit,
+    totalCards: Int
 ) {
     val labels = listOf("Hard", "Good", "Easy")
     val backgroundColors = listOf(
@@ -630,7 +633,7 @@ fun ReviewButtons(
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp),
-        horizontalArrangement = Arrangement.SpaceEvenly
+        horizontalArrangement = Arrangement.SpaceEvenly,
     ) {
         labels.indices.forEach { i ->
             Box(
@@ -644,7 +647,7 @@ fun ReviewButtons(
                     .border(2.dp, borderColors[i], RoundedCornerShape(16.dp))
                     .clickable {
                         viewModel.addCard(i, card, cardIdx)
-                        if (cardIdx == 0) {
+                        if (cardIdx == totalCards-1) {
                             goToHomeScreen()
                         }
                     }
