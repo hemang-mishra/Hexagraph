@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.last
 import javax.inject.Inject
 import kotlinx.coroutines.launch
 
+@HiltViewModel
 class SettingViewModel @Inject constructor(
     private val backupRepository: FirebaseBackupRepository,
     private val dao: DeckDao
