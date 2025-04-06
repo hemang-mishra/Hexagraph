@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.hexagraph.pattagobhi.util.Review
+import com.hexagraph.pattagobhi.util.getCurrentTime
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -78,23 +79,25 @@ fun CardScreen(
         val state by viewModel.uiState.collectAsState()
         val cards = state.cards
         val size = cards.size
-        val hard = cards.count { it.review == Review.HARD }
-        val medium = cards.count { it.review == Review.MEDIUM }
-        val easy = cards.count { it.review == Review.EASY }
+        val currentTime = getCurrentTime()
+        val hard = cards.count { it.review == Review.HARD && currentTime >= it.nextReview }
+        val medium = cards.count { it.review == Review.MEDIUM && currentTime >= it.nextReview }
+        val easy = cards.count { it.review == Review.EASY && currentTime >= it.nextReview }
 
         Box(modifier = Modifier.padding(innerPadding)) {
-            DeckStatsScreen(name, easy, medium, hard, 0, size)
-            Column(modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(bottom = 16.dp)) {
+            DeckStatsScreen(name, easy, medium, hard, easy + medium + hard, size)
+            Column(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = 16.dp)
+            ) {
                 Button(
                     onClick = {
                         onReviewClicked(deckId)
                     },
                     modifier = Modifier
                         .padding(bottom = 16.dp)
-                        .fillMaxWidth(0.8f)
-                    , colors = ButtonDefaults.buttonColors(
+                        .fillMaxWidth(0.8f), colors = ButtonDefaults.buttonColors(
                         containerColor = Color(0xFF285669),
                         contentColor = Color.White
                     )
@@ -108,8 +111,7 @@ fun CardScreen(
                     },
                     modifier = Modifier
                         .padding(bottom = 16.dp)
-                        .fillMaxWidth(0.8f)
-                    , colors = ButtonDefaults.buttonColors(
+                        .fillMaxWidth(0.8f), colors = ButtonDefaults.buttonColors(
                         containerColor = Color(0xFF83611E),
                         contentColor = Color.White
                     )
@@ -149,7 +151,9 @@ fun DeckStatsScreen(
         Spacer(modifier = Modifier.height(24.dp))
         Card(
             shape = RoundedCornerShape(16.dp),
-            modifier = Modifier.fillMaxWidth().border(2.dp, Color.White.copy(alpha = 0.2f), shape = RoundedCornerShape(16.dp)),
+            modifier = Modifier
+                .fillMaxWidth()
+                .border(2.dp, Color.White.copy(alpha = 0.2f), shape = RoundedCornerShape(16.dp)),
             colors = CardDefaults.cardColors(containerColor = Color(0xFF1E1D1B))
 
         ) {

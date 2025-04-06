@@ -49,12 +49,13 @@ fun MainCardGenerationScreen(
                 CurrentScreen.TopicInputScreen -> {
                     TopicInputScreen(
                         viewModel = viewModel,
-                        onGenerateClick = {
+                        onGenerateClick = {deckId->
                             viewModel.generateQuestions(
                                 uiState.cardGenerationUIStateForUI.topic,
                                 uiState.cardGenerationUIStateForUI.easyQuestions.toInt(),
                                 uiState.cardGenerationUIStateForUI.mediumQuestions.toInt(),
                                 uiState.cardGenerationUIStateForUI.hardQuestions.toInt(),
+                                deckId = deckId
                             )
                         }
                     )

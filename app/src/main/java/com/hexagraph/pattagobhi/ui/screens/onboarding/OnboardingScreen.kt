@@ -172,7 +172,7 @@ private fun NonAnimatedCenterS1(modifier: Modifier) {
         )
         Spacer(modifier = Modifier.height(16.dp))
         Text(
-            text = "Welcome to MindStacks",
+            text = "Welcome to MindStack",
             style = TextStyle(
                 fontSize = 24.sp,
                 lineHeight = 48.sp,

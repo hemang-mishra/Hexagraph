@@ -57,7 +57,8 @@ fun AppTextField(
     isEnabled: Boolean = true,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     maxLines: Int = 1,
-    keyboardActions: KeyboardActions = KeyboardActions()
+    keyboardActions: KeyboardActions = KeyboardActions(),
+
 ) {
     // Use fillMaxWidth for responsiveness rather than a fixed width.
     Box(

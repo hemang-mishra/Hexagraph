@@ -28,6 +28,8 @@ interface DeckDao {
     @Query("SELECT * FROM card WHERE deckId = :deckId")
     fun getCardByDeck(deckId:Int):Flow<List<Card>>
 
+
+
     @Update
     suspend fun updateCard(card:Card)
 
