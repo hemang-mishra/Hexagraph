@@ -236,7 +236,10 @@ class CardGenerationViewModel @Inject constructor(
         viewModelScope.launch {
             reviewScreenStateFlow.value = reviewScreenStateFlow.value.copy(
                 currentIndex = index,
-                currentState = CurrentStateOfReviewScreen.OnlyQuestionDisplayed
+                currentState = CurrentStateOfReviewScreen.OnlyQuestionDisplayed,
+                feedbackText = null,
+                voiceText = null,
+                isTextToSpeechActive = false
             )
         }
     }
@@ -245,6 +248,22 @@ class CardGenerationViewModel @Inject constructor(
         viewModelScope.launch {
             reviewScreenStateFlow.value = reviewScreenStateFlow.value.copy(
                 isTextToSpeechActive = isSpeakerOn
+            )
+        }
+    }
+
+    fun toggleMicState(isMicOn: Boolean) {
+        viewModelScope.launch {
+            reviewScreenStateFlow.value = reviewScreenStateFlow.value.copy(
+                isTextToSpeechActive = isMicOn
+            )
+        }
+    }
+
+    fun updateVoiceText(text: String) {
+        viewModelScope.launch {
+            reviewScreenStateFlow.value = reviewScreenStateFlow.value.copy(
+                voiceText = text
             )
         }
     }

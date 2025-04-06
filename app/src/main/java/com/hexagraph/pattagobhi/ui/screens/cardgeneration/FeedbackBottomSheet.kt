@@ -43,7 +43,9 @@ fun FeedbackBottomSheet(
                 modifier = Modifier.padding(bottom = 12.dp)
             )
             if(response  != null)
-            MarkdownText(markdown = response)
+            MarkdownText(markdown = response,
+                syntaxHighlightColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f),
+                syntaxHighlightTextColor = MaterialTheme.colorScheme.onPrimaryContainer)
             else{
                 Box(modifier = Modifier.fillMaxWidth(),
                     contentAlignment = Alignment.Center) {
