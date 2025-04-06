@@ -18,6 +18,7 @@ import com.hexagraph.pattagobhi.util.getNextReviewTime
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -51,9 +52,10 @@ class CardGenerationViewModel @Inject constructor(
     }
 
     fun generateFeedback() {
-        viewModelScope.launch(Dispatchers.IO) {
-            val uiState = createGenerationUIStateFlow.value
-            val it = createGenerationUIStateFlow.value.reviewScreenUIState.currentIndex
+        viewModelScope.launch() {
+            delay(1000)
+            val uiState = uiState.value
+            val it = uiState.reviewScreenUIState.currentIndex
             val card = uiState.easyCards.getOrNull(it)
                 ?: uiState.mediumCards.getOrNull(it - uiState.easyCards.size)
                 ?: uiState.hardCards.getOrNull(it - uiState.easyCards.size - uiState.mediumCards.size)

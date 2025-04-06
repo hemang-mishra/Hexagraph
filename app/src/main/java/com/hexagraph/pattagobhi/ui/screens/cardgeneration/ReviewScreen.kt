@@ -168,7 +168,7 @@ fun ReviewScreenBase(
     ) {
         TopHeaderSection(
             isSpeakerActive = uiState.reviewScreenUIState.isTextToSpeechActive,
-            onMenuClick, onBackClick, onMuteClick, onCloseClick
+            onMenuClick,onHelpClick, onBackClick, onMuteClick, onCloseClick
         )
         CardsLeftIndicator(
             cardsLeftText = "${uiState.easyCards.size + uiState.mediumCards.size + uiState.hardCards.size - verticalPager.currentPage - 1} cards left",
@@ -286,6 +286,7 @@ fun CardsLeftIndicator(
 fun TopHeaderSection(
     isSpeakerActive: Boolean,
     onMenuClick: () -> Unit,
+    onHelpClick: () -> Unit,
     onBackClick: () -> Unit,
     onMuteClick: () -> Unit,
     onCloseClick: () -> Unit,
@@ -324,16 +325,8 @@ fun TopHeaderSection(
                 )
             }
 
-            IconButton(onClick = onMuteClick) {
-                Icon(
-                    imageVector = if (isSpeakerActive) Icons.AutoMirrored.Filled.VolumeOff else Icons.AutoMirrored.Filled.VolumeUp,
-                    contentDescription = "Mute",
-                    tint = iconTint,
-                    modifier = Modifier.size(iconSize)
-                )
-            }
 
-            IconButton(onClick = onCloseClick) {
+            IconButton(onClick = onHelpClick) {
                 Icon(
                     imageVector = Icons.Default.QuestionMark,
                     contentDescription = "AI",

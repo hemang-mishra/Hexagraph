@@ -64,7 +64,6 @@ object GeminiPrompts{
     fun feedbackOnResponse(question: String, answer: String, response: String): String{
         return "Question : $question\n" +
                 "\n" +
-                "Answer : $answer.\n" +
                 "\n" +
                 "The user responded with $response.\n" +
                 "Provide a feedback on the response. Judge whether it is correct or not."+
