@@ -1,5 +1,6 @@
 [versions]
 agp = "8.9.1"
+composeMarkdown = "0.5.7"
 hiltCompiler = "1.2.0"
 kotlin = "2.0.0"
 coreKtx = "1.15.0"
@@ -52,6 +53,7 @@ androidx-hilt-work = { module = "androidx.hilt:hilt-work", version.ref = "hiltCo
 androidx-material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version.ref = "materialIconsExtended" }
 androidx-startup-runtime = { module = "androidx.startup:startup-runtime", version.ref = "startupRuntime" }
 androidx-work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "workRuntimeKtx" }
+compose-markdown = { module = "com.github.jeziellago:compose-markdown", version.ref = "composeMarkdown" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }

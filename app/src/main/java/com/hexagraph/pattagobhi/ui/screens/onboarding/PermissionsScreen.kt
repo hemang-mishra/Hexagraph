@@ -26,6 +26,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale
 import androidx.navigation.NavController
@@ -112,7 +113,7 @@ private fun PermissionCard(
             Row {
                 Icon(
                     modifier = Modifier.padding(4.dp),
-                    imageVector = permissionsRequired.image,
+                    painter = painterResource(permissionsRequired.image),
                     contentDescription = "Image",
 
                     )
